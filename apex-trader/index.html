@@ -287,7 +287,7 @@ tailwind.config = {
         <h3 class="text-white font-bold text-xl mb-2">Base</h3>
         <p class="text-dark-300 text-sm mb-6">Everything you need to get started.</p>
         <div class="flex items-baseline gap-1 mb-8">
-          <span class="text-4xl font-extrabold text-white">$___</span>
+          <span class="text-4xl font-extrabold text-white">$197</span>
           <span class="text-dark-300 text-sm">one-time</span>
         </div>
         <ul class="space-y-3 text-sm text-dark-200 mb-8">
@@ -300,7 +300,7 @@ tailwind.config = {
           <li><span class="check">&#10003;</span>Demo mode</li>
           <li><span class="check">&#10003;</span>Encrypted local database</li>
         </ul>
-        <button class="btn-outline w-full text-sm">Get Base</button>
+        <button onclick="buyNow('base')" class="btn-outline w-full text-sm">Get Base</button>
       </div>
 
       <!-- Pro -->
@@ -309,7 +309,7 @@ tailwind.config = {
         <h3 class="text-white font-bold text-xl mb-2">Pro</h3>
         <p class="text-dark-300 text-sm mb-6">Full power. No limits worth hitting.</p>
         <div class="flex items-baseline gap-1 mb-8">
-          <span class="text-4xl font-extrabold text-white">$___</span>
+          <span class="text-4xl font-extrabold text-white">$497</span>
           <span class="text-dark-300 text-sm">one-time</span>
         </div>
         <ul class="space-y-3 text-sm text-dark-200 mb-8">
@@ -323,11 +323,11 @@ tailwind.config = {
           <li><span class="check">&#10003;</span>Priority support</li>
           <li><span class="check">&#10003;</span>Everything in Base</li>
         </ul>
-        <button class="btn-primary w-full text-sm">Get Pro</button>
+        <button onclick="buyNow('pro')" class="btn-primary w-full text-sm">Get Pro</button>
       </div>
     </div>
 
-    <p class="text-center text-dark-300 text-sm mt-8">Payment via crypto accepted. No accounts required.</p>
+    <p class="text-center text-dark-300 text-sm mt-8">Payment via crypto accepted. 300+ cryptocurrencies supported. No accounts required.</p>
   </div>
 </section>
 
@@ -405,10 +405,50 @@ tailwind.config = {
       <span class="text-lg font-bold text-white">Apex</span>
       <span class="text-lg font-bold gradient-text">Trader</span>
     </div>
-    <p class="text-dark-300 text-sm">Project Apex</p>
+    <p class="text-dark-300 text-sm">A <strong class="text-white">Permanently Mobile</strong> product</p>
     <p class="text-dark-400 text-xs">Trading involves risk. Past performance does not guarantee future results.</p>
   </div>
 </footer>
+
+<script>
+async function buyNow(tier) {
+  const btn = event.target;
+  const originalText = btn.textContent;
+  btn.textContent = 'Loading...';
+  btn.disabled = true;
+
+  const prices = { base: 197, pro: 497 };
+  const names = { base: 'Apex Trader - Base License', pro: 'Apex Trader - Pro License' };
+
+  try {
+    const res = await fetch('https://api.nowpayments.io/v1/invoice', {
+      method: 'POST',
+      headers: {
+        'x-api-key': 'REDACTED-OLD-NOWP-KEY-2026-04-03',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        price_amount: prices[tier],
+        price_currency: 'usd',
+        order_id: 'apex-trader-' + tier + '-' + Date.now(),
+        order_description: names[tier],
+        success_url: window.location.origin + '/apex-trader/success.html',
+        cancel_url: window.location.href
+      })
+    });
+    const data = await res.json();
+    if (data.invoice_url) {
+      window.location.href = data.invoice_url;
+    } else {
+      throw new Error('No invoice URL returned');
+    }
+  } catch (err) {
+    btn.textContent = originalText;
+    btn.disabled = false;
+    alert('Payment system temporarily unavailable. Please try again in a moment.');
+  }
+}
+</script>
 
 </body>
 </html>
