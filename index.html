@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Permanently Mobile -- Products</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: #0f0f0f; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
+  .logo { font-size: 28px; font-weight: 800; margin-bottom: 8px; color: #fff; }
+  .tagline { color: #888; font-size: 14px; margin-bottom: 48px; letter-spacing: 1px; }
+  .products { display: grid; gap: 20px; max-width: 500px; width: 100%; }
+  .product-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 28px; text-decoration: none; color: inherit; transition: all 0.2s; display: block; }
+  .product-card:hover { border-color: #22c55e; transform: translateY(-2px); box-shadow: 0 4px 24px rgba(34, 197, 94, 0.1); }
+  .product-name { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .product-name span { background: linear-gradient(135deg, #4ade80, #22c55e, #16a34a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .product-desc { color: #888; font-size: 14px; line-height: 1.6; }
+  .product-tag { display: inline-block; margin-top: 12px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; background: #064e3b; color: #4ade80; border: 1px solid #16a34a; letter-spacing: 0.5px; }
+  footer { margin-top: 60px; text-align: center; }
+  footer p { color: #444; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="logo">Permanently Mobile</div>
+<div class="tagline">PRODUCTS</div>
+
+<div class="products">
+  <a href="/apex-trader/" class="product-card">
+    <div class="product-name">Apex <span>Trader</span></div>
+    <div class="product-desc">Self-hosted perpetual futures trading bot. Runs on your hardware, trades with your keys. No cloud, no subscriptions, no middleman.</div>
+    <div class="product-tag">AVAILABLE NOW</div>
+  </a>
+</div>
+
+<footer>
+  <p>&copy; 2026 Permanently Mobile LLC</p>
+</footer>
+
+</body>
+</html>

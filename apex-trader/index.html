@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apex Trader -- Automated Perpetual Futures Trading</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        apex: { 50: '#f0fdf4', 100: '#dcfce7', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 900: '#0a1f0f' },
+        dark: { 50: '#e0e0e0', 100: '#bbb', 200: '#888', 300: '#666', 400: '#444', 500: '#2a2a2a', 600: '#1f1f1f', 700: '#1a1a1a', 800: '#141414', 900: '#0f0f0f' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #0f0f0f; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .gradient-text { background: linear-gradient(135deg, #4ade80, #22c55e, #16a34a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; }
+  .glow { box-shadow: 0 0 40px rgba(74, 222, 128, 0.08); }
+  .feature-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: #141414; border: 1px solid #2a2a2a; }
+  .exchange-logo { width: 48px; height: 48px; border-radius: 10px; background: #141414; border: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; color: #888; text-transform: uppercase; }
+  .price-card { position: relative; overflow: hidden; }
+  .price-card.featured { border-color: #22c55e; }
+  .price-card.featured::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #4ade80, #22c55e); }
+  .badge-popular { position: absolute; top: 14px; right: 14px; background: #064e3b; color: #4ade80; border: 1px solid #16a34a; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+  .btn-primary { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; font-weight: 700; padding: 12px 32px; border-radius: 10px; border: none; cursor: pointer; transition: all 0.2s; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3); }
+  .btn-outline { background: transparent; color: #4ade80; font-weight: 700; padding: 12px 32px; border-radius: 10px; border: 1px solid #2a2a2a; cursor: pointer; transition: all 0.2s; }
+  .btn-outline:hover { border-color: #4ade80; background: rgba(74, 222, 128, 0.05); }
+  .stat-counter { font-size: 36px; font-weight: 800; line-height: 1; }
+  .terminal { background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 10px; font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace; font-size: 13px; overflow: hidden; }
+  .terminal-header { background: #141414; padding: 8px 14px; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid #2a2a2a; }
+  .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .terminal-body { padding: 16px; line-height: 1.7; color: #888; }
+  .terminal-body .cmd { color: #4ade80; }
+  .terminal-body .comment { color: #555; }
+  .terminal-body .output { color: #bbb; }
+  .check { color: #4ade80; margin-right: 8px; }
+  .faq-item { border-bottom: 1px solid #2a2a2a; }
+  .faq-q { cursor: pointer; padding: 18px 0; font-weight: 600; color: #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+  .faq-a { padding: 0 0 18px; color: #888; line-height: 1.7; display: none; }
+  .faq-item.open .faq-a { display: block; }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); }
+  .faq-arrow { transition: transform 0.2s; color: #555; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- NAV -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<nav class="fixed top-0 w-full z-50 backdrop-blur-md bg-dark-900/80 border-b border-dark-500">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="text-xl font-bold text-white">Apex</span>
+      <span class="text-xl font-bold gradient-text">Trader</span>
+    </div>
+    <div class="hidden md:flex items-center gap-8 text-sm text-dark-200">
+      <a href="#features" class="hover:text-white transition">Features</a>
+      <a href="#exchanges" class="hover:text-white transition">Exchanges</a>
+      <a href="#pricing" class="hover:text-white transition">Pricing</a>
+      <a href="#faq" class="hover:text-white transition">FAQ</a>
+    </div>
+    <a href="#pricing" class="btn-primary text-sm" style="padding: 8px 20px;">Get Started</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="pt-32 pb-20 px-6">
+  <div class="max-w-4xl mx-auto text-center">
+    <div class="inline-block mb-6 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide border border-dark-500 text-dark-200">
+      SELF-HOSTED &middot; YOUR KEYS &middot; YOUR MACHINE
+    </div>
+    <h1 class="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-6">
+      Trade perpetual futures<br>
+      <span class="gradient-text">on autopilot.</span>
+    </h1>
+    <p class="text-lg md:text-xl text-dark-200 max-w-2xl mx-auto mb-10 leading-relaxed">
+      Apex Trader runs on your hardware, trades with your exchange credentials, and executes your strategy. No cloud. No data sharing. No middleman.
+    </p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+      <a href="#pricing" class="btn-primary text-base">Start Trading</a>
+      <a href="#demo" class="btn-outline text-base">See It Running</a>
+    </div>
+
+    <!-- Terminal demo -->
+    <div id="demo" class="terminal max-w-2xl mx-auto text-left glow">
+      <div class="terminal-header">
+        <div class="terminal-dot" style="background:#f87171"></div>
+        <div class="terminal-dot" style="background:#fbbf24"></div>
+        <div class="terminal-dot" style="background:#4ade80"></div>
+        <span class="text-xs text-dark-300 ml-2">apex-trader</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="cmd">$</span> <span class="output">node setup-wizard.mjs</span></div>
+        <div class="comment"># Interactive setup -- pick exchange, strategy, pairs</div>
+        <div class="mt-3"><span class="cmd">$</span> <span class="output">node apex-trader.mjs</span></div>
+        <div class="mt-1"><span class="output">[14:32:01] Engine started: reversal_180</span></div>
+        <div><span class="output">[14:32:01] Watching: BTC-USDT (1H), ETH-USDT (1H), SOL-USDT (15m)</span></div>
+        <div><span class="output">[14:32:02] Exchange: Blofin (demo) -- connected</span></div>
+        <div><span class="output">[14:32:02] Status page: http://localhost:3200</span></div>
+        <div class="mt-2"><span style="color:#4ade80">[14:45:00] SIGNAL: BTC-USDT LONG @ $67,240 (reversal_180)</span></div>
+        <div><span style="color:#4ade80">[14:45:01] ORDER FILLED: BTC-USDT LONG 0.015 @ $67,241</span></div>
+        <div><span style="color:#fbbf24">[14:45:01] SL: $65,224 | Trail: 0.5% (activates at +2.5%)</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- STATS BAR -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="py-12 border-y border-dark-500">
+  <div class="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+    <div>
+      <div class="stat-counter gradient-text">5</div>
+      <div class="text-sm text-dark-200 mt-1">Exchanges</div>
+    </div>
+    <div>
+      <div class="stat-counter text-white">4</div>
+      <div class="text-sm text-dark-200 mt-1">Built-in Strategies</div>
+    </div>
+    <div>
+      <div class="stat-counter text-white">7</div>
+      <div class="text-sm text-dark-200 mt-1">Timeframes</div>
+    </div>
+    <div>
+      <div class="stat-counter gradient-text">0%</div>
+      <div class="text-sm text-dark-200 mt-1">Monthly Fees</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- FEATURES -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="features" class="py-20 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-14">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Everything you need. Nothing you don't.</h2>
+      <p class="text-dark-200 text-lg">No subscriptions. No cloud lock-in. One payment, full ownership.</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1f512;</div>
+        <h3 class="text-white font-bold mb-2">Self-Hosted</h3>
+        <p class="text-dark-200 text-sm leading-relaxed">Runs on your machine. API keys never leave your hardware. No cloud servers, no data sharing, no third-party access.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x26a1;</div>
+        <h3 class="text-white font-bold mb-2">Real-Time Status Page</h3>
+        <p class="text-dark-200 text-sm leading-relaxed">Built-in WebSocket dashboard. Watch positions, P&L, signals, and activity in real time from any browser on your network.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1f6e1;</div>
+        <h3 class="text-white font-bold mb-2">Risk Management</h3>
+        <p class="text-dark-200 text-sm leading-relaxed">Hard leverage caps, daily drawdown limits, stop losses, trailing stops, and max position controls. All configurable per-pair.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1f9ea;</div>
+        <h3 class="text-white font-bold mb-2">Demo Mode</h3>
+        <p class="text-dark-200 text-sm leading-relaxed">Every exchange supports sandbox/testnet. Test your strategy risk-free before committing real capital. Flip one config flag to go live.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1f4ca;</div>
+        <h3 class="text-white font-bold mb-2">Backtesting Engine</h3>
+        <p class="text-dark-200 text-sm leading-relaxed">Test strategies against historical data. Compare performance, drawdown, and win rates before deploying live.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x2699;</div>
+        <h3 class="text-white font-bold mb-2">Setup Wizard</h3>
+        <p class="text-dark-200 text-sm leading-relaxed">Interactive CLI walks through exchange selection, API credentials, strategy pick, and risk params. Trading in under 5 minutes.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1f4c8;</div>
+        <h3 class="text-white font-bold mb-2">4 Strategy Engines</h3>
+        <p class="text-dark-200 text-sm leading-relaxed">Reversal detection, level rejection, momentum entries, and conservative indicator signals. Each engine tunable via config params.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1f50c;</div>
+        <h3 class="text-white font-bold mb-2">Unified Exchange API</h3>
+        <p class="text-dark-200 text-sm leading-relaxed">Same config format across all exchanges. Switch from Blofin to Bybit by changing one line. CCXT adapter handles the rest.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1f4be;</div>
+        <h3 class="text-white font-bold mb-2">Local Database</h3>
+        <p class="text-dark-200 text-sm leading-relaxed">All trades, positions, and performance data stored in an encrypted local SQLite database. Optional passphrase encryption.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- EXCHANGES -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="exchanges" class="py-20 px-6 border-t border-dark-500">
+  <div class="max-w-5xl mx-auto text-center">
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Your exchange. Your choice.</h2>
+    <p class="text-dark-200 text-lg mb-12">Connect to any of these exchanges with a single config change.</p>
+
+    <div class="flex flex-wrap items-center justify-center gap-6">
+      <div class="card p-6 flex flex-col items-center gap-3 w-40">
+        <div class="exchange-logo">BLO</div>
+        <span class="text-white font-semibold text-sm">Blofin</span>
+        <span class="text-xs text-dark-300">Demo available</span>
+      </div>
+      <div class="card p-6 flex flex-col items-center gap-3 w-40">
+        <div class="exchange-logo">HL</div>
+        <span class="text-white font-semibold text-sm">Hyperliquid</span>
+        <span class="text-xs text-dark-300">On-chain perps</span>
+      </div>
+      <div class="card p-6 flex flex-col items-center gap-3 w-40">
+        <div class="exchange-logo">BB</div>
+        <span class="text-white font-semibold text-sm">Bybit</span>
+        <span class="text-xs text-dark-300">Testnet available</span>
+      </div>
+      <div class="card p-6 flex flex-col items-center gap-3 w-40">
+        <div class="exchange-logo">BN</div>
+        <span class="text-white font-semibold text-sm">Binance</span>
+        <span class="text-xs text-dark-300">Futures</span>
+      </div>
+      <div class="card p-6 flex flex-col items-center gap-3 w-40">
+        <div class="exchange-logo">OKX</div>
+        <span class="text-white font-semibold text-sm">OKX</span>
+        <span class="text-xs text-dark-300">Demo available</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HOW IT WORKS -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="py-20 px-6 border-t border-dark-500">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-14 text-center">Up and running in 3 steps.</h2>
+
+    <div class="space-y-10">
+      <div class="flex items-start gap-6">
+        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-dark-800 border border-dark-500 flex items-center justify-center text-apex-400 font-bold text-lg">1</div>
+        <div>
+          <h3 class="text-white font-bold text-lg mb-1">Install</h3>
+          <p class="text-dark-200 leading-relaxed">Download the package, run <code class="text-apex-400 bg-dark-800 px-2 py-0.5 rounded text-sm">npm install</code>. Node.js 20+ is the only requirement. No Docker, no external services.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-6">
+        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-dark-800 border border-dark-500 flex items-center justify-center text-apex-400 font-bold text-lg">2</div>
+        <div>
+          <h3 class="text-white font-bold text-lg mb-1">Configure</h3>
+          <p class="text-dark-200 leading-relaxed">Run the setup wizard or edit <code class="text-apex-400 bg-dark-800 px-2 py-0.5 rounded text-sm">config.yaml</code> directly. Pick your exchange, paste your API keys, choose a strategy, set your risk limits.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-6">
+        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-dark-800 border border-dark-500 flex items-center justify-center text-apex-400 font-bold text-lg">3</div>
+        <div>
+          <h3 class="text-white font-bold text-lg mb-1">Trade</h3>
+          <p class="text-dark-200 leading-relaxed">Run <code class="text-apex-400 bg-dark-800 px-2 py-0.5 rounded text-sm">node apex-trader.mjs</code> and open the status page. Start in demo mode, validate your strategy, then flip to live when ready.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PRICING -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="pricing" class="py-20 px-6 border-t border-dark-500">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-14">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">One payment. You own it.</h2>
+      <p class="text-dark-200 text-lg">No monthly subscriptions. No profit sharing. No hidden fees.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+
+      <!-- Base -->
+      <div class="card price-card p-8">
+        <h3 class="text-white font-bold text-xl mb-2">Base</h3>
+        <p class="text-dark-300 text-sm mb-6">Everything you need to get started.</p>
+        <div class="flex items-baseline gap-1 mb-8">
+          <span class="text-4xl font-extrabold text-white">$___</span>
+          <span class="text-dark-300 text-sm">one-time</span>
+        </div>
+        <ul class="space-y-3 text-sm text-dark-200 mb-8">
+          <li><span class="check">&#10003;</span>2 exchanges</li>
+          <li><span class="check">&#10003;</span>3 trading pairs</li>
+          <li><span class="check">&#10003;</span>All 4 strategy engines</li>
+          <li><span class="check">&#10003;</span>Backtesting engine</li>
+          <li><span class="check">&#10003;</span>Real-time status page</li>
+          <li><span class="check">&#10003;</span>Setup wizard</li>
+          <li><span class="check">&#10003;</span>Demo mode</li>
+          <li><span class="check">&#10003;</span>Encrypted local database</li>
+        </ul>
+        <button class="btn-outline w-full text-sm">Get Base</button>
+      </div>
+
+      <!-- Pro -->
+      <div class="card price-card featured p-8 glow">
+        <div class="badge-popular">MOST VALUE</div>
+        <h3 class="text-white font-bold text-xl mb-2">Pro</h3>
+        <p class="text-dark-300 text-sm mb-6">Full power. No limits worth hitting.</p>
+        <div class="flex items-baseline gap-1 mb-8">
+          <span class="text-4xl font-extrabold text-white">$___</span>
+          <span class="text-dark-300 text-sm">one-time</span>
+        </div>
+        <ul class="space-y-3 text-sm text-dark-200 mb-8">
+          <li><span class="check">&#10003;</span><strong class="text-white">5 exchanges</strong></li>
+          <li><span class="check">&#10003;</span><strong class="text-white">10 trading pairs</strong></li>
+          <li><span class="check">&#10003;</span>All 4 strategy engines</li>
+          <li><span class="check">&#10003;</span>Multi-strategy support</li>
+          <li><span class="check">&#10003;</span>Backtesting engine</li>
+          <li><span class="check">&#10003;</span>Portfolio tracking</li>
+          <li><span class="check">&#10003;</span>VPN sidecar</li>
+          <li><span class="check">&#10003;</span>Priority support</li>
+          <li><span class="check">&#10003;</span>Everything in Base</li>
+        </ul>
+        <button class="btn-primary w-full text-sm">Get Pro</button>
+      </div>
+    </div>
+
+    <p class="text-center text-dark-300 text-sm mt-8">Payment via crypto accepted. No accounts required.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- FAQ -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="faq" class="py-20 px-6 border-t border-dark-500">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-3xl font-bold text-white mb-10 text-center">Questions</h2>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Do I need a server or VPS?
+        <span class="faq-arrow">&#9660;</span>
+      </div>
+      <div class="faq-a">No. Apex Trader runs on any machine with Node.js 20+ -- your laptop, a mini PC, a NAS, or a VPS if you prefer. There's no cloud component. It connects directly to your exchange's API.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Are my API keys safe?
+        <span class="faq-arrow">&#9660;</span>
+      </div>
+      <div class="faq-a">Your API keys stay in your local config.yaml file and never leave your machine. There's no telemetry, no cloud sync, no phone-home. The bot connects directly from your IP to the exchange API.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Can I test without real money?
+        <span class="faq-arrow">&#9660;</span>
+      </div>
+      <div class="faq-a">Yes. Every supported exchange has a sandbox/demo/testnet mode. Start with <code>sandbox: true</code> in your config (this is the default). Run your strategy risk-free, review performance, then flip to live when you're confident.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        What strategies are included?
+        <span class="faq-arrow">&#9660;</span>
+      </div>
+      <div class="faq-a">Four built-in engines: <strong>reversal_180</strong> (trend reversal detection), <strong>dmc_level_rejection</strong> (key level bounce trading), <strong>money_z</strong> (momentum entries), and <strong>piggy_v1</strong> (conservative indicator signals). Each is configurable via params in your config file.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        How do I switch exchanges?
+        <span class="faq-arrow">&#9660;</span>
+      </div>
+      <div class="faq-a">Change the <code>exchange.id</code> field in config.yaml and paste your new credentials. The CCXT adapter normalizes everything -- pair formats, order types, position tracking. One config change, same behavior.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        Is there a monthly fee?
+        <span class="faq-arrow">&#9660;</span>
+      </div>
+      <div class="faq-a">No. One-time payment. You own the software. No subscriptions, no profit-sharing, no usage limits beyond your tier's exchange and pair counts.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+        What happens if my machine goes offline?
+        <span class="faq-arrow">&#9660;</span>
+      </div>
+      <div class="faq-a">Active stop losses and trailing stops are placed on the exchange itself, so they execute even if your machine disconnects. When the bot restarts, it reconciles positions with the exchange and picks up where it left off.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<footer class="py-12 px-6 border-t border-dark-500">
+  <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-2">
+      <span class="text-lg font-bold text-white">Apex</span>
+      <span class="text-lg font-bold gradient-text">Trader</span>
+    </div>
+    <p class="text-dark-300 text-sm">Project Apex</p>
+    <p class="text-dark-400 text-xs">Trading involves risk. Past performance does not guarantee future results.</p>
+  </div>
+</footer>
+
+</body>
+</html>
