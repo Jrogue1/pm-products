@@ -317,13 +317,9 @@ tailwind.config = {
 <!-- PRICING -->
 <section id="pricing" class="py-20 px-6 border-t border-dark-500">
   <div class="max-w-4xl mx-auto">
-    <div class="text-center mb-6">
-      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Simple Pricing</h2>
-      <p class="text-dark-200 text-lg mb-6">One-time payment or monthly subscription. Your choice.</p>
-      <div class="inline-flex rounded-lg border border-dark-500 p-1 mb-8">
-        <button id="tab-onetime" onclick="switchPricing('onetime')" class="px-6 py-2 rounded-md text-sm font-semibold transition" style="background: #2563eb; color: #fff;">One-Time</button>
-        <button id="tab-monthly" onclick="switchPricing('monthly')" class="px-6 py-2 rounded-md text-sm font-semibold text-dark-200 transition">Monthly</button>
-      </div>
+    <div class="text-center mb-14">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">One payment. You own it.</h2>
+      <p class="text-dark-200 text-lg">No monthly subscriptions. No data harvesting. No hidden fees.</p>
     </div>
 
     <div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
@@ -333,8 +329,8 @@ tailwind.config = {
         <h3 class="text-white font-bold text-xl mb-2">Base</h3>
         <p class="text-dark-300 text-sm mb-6">Classification + sanitization for any AI app.</p>
         <div class="flex items-baseline gap-1 mb-8">
-          <span id="price-base" class="text-4xl font-extrabold text-white">$97</span>
-          <span id="price-base-label" class="text-dark-300 text-sm">one-time</span>
+          <span class="text-4xl font-extrabold text-white">$97</span>
+          <span class="text-dark-300 text-sm">one-time</span>
         </div>
         <ul class="space-y-3 text-sm text-dark-200 mb-8">
           <li><span class="check">&#10003;</span>Sensitivity classification (6 categories)</li>
@@ -344,7 +340,7 @@ tailwind.config = {
           <li><span class="check">&#10003;</span>Setup wizard</li>
           <li><span class="check">&#10003;</span>Encrypted local database</li>
         </ul>
-        <button onclick="buyNow('base')" class="btn-outline w-full text-sm">Get Base</button>
+        <button onclick="buyNow('base', event)" class="btn-outline w-full text-sm">Get Base</button>
       </div>
 
       <!-- Pro -->
@@ -353,8 +349,8 @@ tailwind.config = {
         <h3 class="text-white font-bold text-xl mb-2">Pro</h3>
         <p class="text-dark-300 text-sm mb-6">Every feature. No limits worth hitting.</p>
         <div class="flex items-baseline gap-1 mb-8">
-          <span id="price-pro" class="text-4xl font-extrabold text-white">$297</span>
-          <span id="price-pro-label" class="text-dark-300 text-sm">one-time</span>
+          <span class="text-4xl font-extrabold text-white">$297</span>
+          <span class="text-dark-300 text-sm">one-time</span>
         </div>
         <ul class="space-y-3 text-sm text-dark-200 mb-8">
           <li><span class="check">&#10003;</span><strong class="text-white">10 provider integrations</strong></li>
@@ -365,11 +361,11 @@ tailwind.config = {
           <li><span class="check">&#10003;</span>Compliance CSV export</li>
           <li><span class="check">&#10003;</span>Everything in Base</li>
         </ul>
-        <button onclick="buyNow('pro')" class="btn-primary w-full text-sm">Get Pro</button>
+        <button onclick="buyNow('pro', event)" class="btn-primary w-full text-sm">Get Pro</button>
       </div>
     </div>
 
-    <p class="text-center text-dark-300 text-sm mt-8">Pay with any cryptocurrency. 300+ coins accepted via NOWPayments.</p>
+    <p class="text-center text-dark-300 text-sm mt-8">Payment via crypto accepted. 300+ cryptocurrencies supported. No accounts required.</p>
   </div>
 </section>
 
@@ -391,8 +387,8 @@ tailwind.config = {
       <div class="faq-a">No. Privacy Shield is a self-hosted Node.js module that runs on your machine. Your data never leaves your infrastructure unless you choose to send it to an AI provider -- and Privacy Shield helps you control exactly what gets sent.</div>
     </div>
     <div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">What's the difference between one-time and subscription? <span class="faq-arrow">&#9660;</span></div>
-      <div class="faq-a">Same software, different payment model. One-time gives you a perpetual license that never expires. Subscription is lower upfront cost with monthly billing. Both get the same features for their tier.</div>
+      <div class="faq-q">Is there a monthly fee? <span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">No. One-time payment. You own the software. No subscriptions, no usage limits beyond your tier's provider and feature counts.</div>
     </div>
     <div class="faq-item" onclick="this.classList.toggle('open')">
       <div class="faq-q">Can I add custom detection patterns? <span class="faq-arrow">&#9660;</span></div>
@@ -412,36 +408,14 @@ tailwind.config = {
 </footer>
 
 <script>
-const PRICING = {
-  onetime: { base: 97, pro: 297, label: 'one-time' },
-  monthly: { base: 9, pro: 29, label: '/month' }
-};
-let currentMode = 'onetime';
-
-function switchPricing(mode) {
-  currentMode = mode;
-  const p = PRICING[mode];
-  document.getElementById('price-base').textContent = '$' + p.base;
-  document.getElementById('price-pro').textContent = '$' + p.pro;
-  document.getElementById('price-base-label').textContent = p.label;
-  document.getElementById('price-pro-label').textContent = p.label;
-
-  document.getElementById('tab-onetime').style.background = mode === 'onetime' ? '#2563eb' : 'transparent';
-  document.getElementById('tab-onetime').style.color = mode === 'onetime' ? '#fff' : '#888';
-  document.getElementById('tab-monthly').style.background = mode === 'monthly' ? '#2563eb' : 'transparent';
-  document.getElementById('tab-monthly').style.color = mode === 'monthly' ? '#fff' : '#888';
-}
-
-async function buyNow(tier) {
-  const btn = event.target;
+async function buyNow(tier, e) {
+  const btn = e.target;
   const originalText = btn.textContent;
   btn.textContent = 'Loading...';
   btn.disabled = true;
 
-  const p = PRICING[currentMode];
-  const price = p[tier];
-  const modeLabel = currentMode === 'onetime' ? 'Perpetual' : 'Subscription';
-  const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
+  const prices = { base: 97, pro: 297 };
+  const names = { base: 'Privacy Shield - Base License', pro: 'Privacy Shield - Pro License' };
 
   try {
     const res = await fetch('https://api.nowpayments.io/v1/invoice', {
@@ -451,10 +425,10 @@ async function buyNow(tier) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        price_amount: price,
+        price_amount: prices[tier],
         price_currency: 'usd',
-        order_id: 'privacy-shield-' + tier + '-' + currentMode + '-' + Date.now(),
-        order_description: 'Privacy Shield - ' + tierLabel + ' (' + modeLabel + ')',
+        order_id: 'privacy-shield-' + tier + '-' + Date.now(),
+        order_description: names[tier],
         success_url: window.location.origin + '/privacy-shield/success.html',
         cancel_url: window.location.href
       })

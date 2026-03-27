@@ -300,7 +300,7 @@ tailwind.config = {
           <li><span class="check">&#10003;</span>Demo mode</li>
           <li><span class="check">&#10003;</span>Encrypted local database</li>
         </ul>
-        <button onclick="buyNow('base')" class="btn-outline w-full text-sm">Get Base</button>
+        <button onclick="buyNow('base', event)" class="btn-outline w-full text-sm">Get Base</button>
       </div>
 
       <!-- Pro -->
@@ -323,7 +323,7 @@ tailwind.config = {
           <li><span class="check">&#10003;</span>Priority support</li>
           <li><span class="check">&#10003;</span>Everything in Base</li>
         </ul>
-        <button onclick="buyNow('pro')" class="btn-primary w-full text-sm">Get Pro</button>
+        <button onclick="buyNow('pro', event)" class="btn-primary w-full text-sm">Get Pro</button>
       </div>
     </div>
 
@@ -411,8 +411,8 @@ tailwind.config = {
 </footer>
 
 <script>
-async function buyNow(tier) {
-  const btn = event.target;
+async function buyNow(tier, e) {
+  const btn = e.target;
   const originalText = btn.textContent;
   btn.textContent = 'Loading...';
   btn.disabled = true;
