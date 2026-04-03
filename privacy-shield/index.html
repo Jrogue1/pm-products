@@ -417,32 +417,19 @@ async function buyNow(tier, e) {
   const prices = { base: 97, pro: 297 };
   const names = { base: 'Privacy Shield - Base License', pro: 'Privacy Shield - Pro License' };
 
-  try {
-    const res = await fetch('https://api.nowpayments.io/v1/invoice', {
-      method: 'POST',
-      headers: {
-        'x-api-key': 'REDACTED-OLD-NOWP-KEY-2026-04-03',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        price_amount: prices[tier],
-        price_currency: 'usd',
-        order_id: 'privacy-shield-' + tier + '-' + Date.now(),
-        order_description: names[tier],
-        success_url: window.location.origin + '/privacy-shield/success.html',
-        cancel_url: window.location.href
-      })
-    });
-    const data = await res.json();
-    if (data.invoice_url) {
-      window.location.href = data.invoice_url;
-    } else {
-      throw new Error('No invoice URL returned');
-    }
-  } catch (err) {
+  // Payment links created in NOWPayments dashboard (no API key exposed client-side)
+  // Replace these URLs with your actual NOWPayments payment links
+  const paymentLinks = {
+    base: 'REPLACE_WITH_NOWPAYMENTS_BASE_LINK',
+    pro: 'REPLACE_WITH_NOWPAYMENTS_PRO_LINK'
+  };
+
+  if (paymentLinks[tier] && !paymentLinks[tier].startsWith('REPLACE')) {
+    window.location.href = paymentLinks[tier];
+  } else {
     btn.textContent = originalText;
     btn.disabled = false;
-    alert('Payment system temporarily unavailable. Please try again in a moment.');
+    alert('Payment system is being updated. Please check back shortly.');
   }
 }
 </script>
