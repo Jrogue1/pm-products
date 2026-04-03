@@ -417,22 +417,22 @@ async function buyNow(tier, e) {
   btn.textContent = 'Loading...';
   btn.disabled = true;
 
-  const prices = { base: 97, pro: 297 };
-  const names = { base: 'Apex Trader - Base License', pro: 'Apex Trader - Pro License' };
-
-  // Payment links created in NOWPayments dashboard (no API key exposed client-side)
-  // Replace these URLs with your actual NOWPayments payment links
-  const paymentLinks = {
-    base: 'REPLACE_WITH_NOWPAYMENTS_BASE_LINK',
-    pro: 'REPLACE_WITH_NOWPAYMENTS_PRO_LINK'
-  };
-
-  if (paymentLinks[tier] && !paymentLinks[tier].startsWith('REPLACE')) {
-    window.location.href = paymentLinks[tier];
-  } else {
+  try {
+    const res = await fetch('https://pm-payments.nashja2011.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product: 'apex-trader-' + tier })
+    });
+    const data = await res.json();
+    if (data.invoice_url) {
+      window.location.href = data.invoice_url;
+    } else {
+      throw new Error('No invoice URL');
+    }
+  } catch (err) {
     btn.textContent = originalText;
     btn.disabled = false;
-    alert('Payment system is being updated. Please check back shortly.');
+    alert('Payment system temporarily unavailable. Please try again in a moment.');
   }
 }
 </script>
