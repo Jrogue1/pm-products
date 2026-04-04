@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wraith -- AI Security Scanner</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        wraith: { 50: '#fdf2f8', 100: '#fce7f3', 400: '#c084fc', 500: '#a855f7', 600: '#9333ea', 900: '#0f0a1f' },
+        dark: { 50: '#e0e0e0', 100: '#bbb', 200: '#888', 300: '#666', 400: '#444', 500: '#2a2a2a', 600: '#1f1f1f', 700: '#1a1a1a', 800: '#141414', 900: '#0f0f0f' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #0f0f0f; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .gradient-text { background: linear-gradient(135deg, #c084fc, #a855f7, #9333ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; }
+  .glow { box-shadow: 0 0 40px rgba(168, 85, 247, 0.08); }
+  .feature-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: #141414; border: 1px solid #2a2a2a; }
+  .price-card { position: relative; overflow: hidden; }
+  .price-card.featured { border-color: #a855f7; }
+  .price-card.featured::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #c084fc, #9333ea); }
+  .badge-popular { position: absolute; top: 14px; right: 14px; background: #1e0a3e; color: #c084fc; border: 1px solid #7c3aed; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+  .btn-primary { background: linear-gradient(135deg, #a855f7, #9333ea); color: #fff; font-weight: 700; padding: 12px 32px; border-radius: 10px; border: none; cursor: pointer; transition: all 0.2s; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3); }
+  .btn-outline { background: transparent; color: #c084fc; font-weight: 700; padding: 12px 32px; border-radius: 10px; border: 1px solid #2a2a2a; cursor: pointer; transition: all 0.2s; }
+  .btn-outline:hover { border-color: #a855f7; background: rgba(168, 85, 247, 0.05); }
+  .terminal { background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 10px; font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace; font-size: 13px; overflow: hidden; }
+  .terminal-header { background: #141414; padding: 8px 14px; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid #2a2a2a; }
+  .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .terminal-body { padding: 16px; line-height: 1.7; color: #888; }
+  .terminal-body .cmd { color: #c084fc; }
+  .terminal-body .comment { color: #555; }
+  .terminal-body .output { color: #bbb; }
+  .terminal-body .crit { color: #ef4444; }
+  .terminal-body .high { color: #f97316; }
+  .terminal-body .med { color: #eab308; }
+  .terminal-body .safe { color: #22c55e; }
+  .check { color: #a855f7; margin-right: 8px; }
+  .faq-item { border-bottom: 1px solid #2a2a2a; }
+  .faq-q { cursor: pointer; padding: 18px 0; font-weight: 600; color: #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+  .faq-a { padding: 0 0 18px; color: #888; line-height: 1.7; display: none; }
+  .faq-item.open .faq-a { display: block; }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); }
+  .faq-arrow { transition: transform 0.2s; color: #555; }
+  .versus-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #1a1a1a; }
+  .versus-row:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="fixed top-0 w-full z-50 backdrop-blur-md bg-dark-900/80 border-b border-dark-500">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="text-xl font-bold text-white">Wraith</span>
+      <span class="text-xs font-mono text-dark-200 mt-0.5">by Permanently Mobile</span>
+    </div>
+    <div class="hidden md:flex items-center gap-8 text-sm text-dark-200">
+      <a href="#attack-surface" class="hover:text-white transition">Attack Surface</a>
+      <a href="#modules" class="hover:text-white transition">Modules</a>
+      <a href="#comparison" class="hover:text-white transition">vs Burp</a>
+      <a href="#pricing" class="hover:text-white transition">Pricing</a>
+      <a href="#faq" class="hover:text-white transition">FAQ</a>
+    </div>
+    <a href="#pricing" class="btn-primary text-sm" style="padding: 8px 20px;">Get Wraith</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="pt-32 pb-20 px-6">
+  <div class="max-w-4xl mx-auto text-center">
+    <div class="inline-block mb-6 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide border border-dark-500 text-dark-200">
+      AI-NATIVE &middot; SELF-HOSTED &middot; FULLY AUTONOMOUS
+    </div>
+    <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+      Your AI system has attack surfaces<br>
+      <span class="gradient-text">web scanners can't see.</span>
+    </h1>
+    <p class="text-lg text-dark-200 mb-10 max-w-2xl mx-auto leading-relaxed">
+      Wraith is an autonomous AI security scanner built for the threats that matter now: prompt injection, memory poisoning, agent exploitation, voice pipeline attacks. 20+ modules. Zero human babysitting. Runs on your hardware.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="#pricing" class="btn-primary text-base">Get Wraith</a>
+      <a href="https://github.com/Permanently-Mobile/wraith" class="btn-outline text-base">View on GitHub</a>
+    </div>
+  </div>
+</section>
+
+<!-- TERMINAL DEMO -->
+<section class="pb-20 px-6">
+  <div class="max-w-3xl mx-auto terminal glow">
+    <div class="terminal-header">
+      <div class="terminal-dot" style="background:#ef4444"></div>
+      <div class="terminal-dot" style="background:#eab308"></div>
+      <div class="terminal-dot" style="background:#22c55e"></div>
+      <span class="text-xs text-dark-300 ml-2 font-mono">wraith scan</span>
+    </div>
+    <div class="terminal-body">
+      <div class="cmd">$ wraith scan --target localhost --modules all --parallel</div>
+      <br>
+      <div class="output">[scan] Loading 24 modules...</div>
+      <div class="output">[scan] Target: localhost (private range - Base license OK)</div>
+      <div class="output">[scan] Running prompt-injection, secret-exposure, bridge-exploit...</div>
+      <br>
+      <div class="crit">[CRITICAL] prompt-injection: System prompt override via nested instruction</div>
+      <div class="crit">[CRITICAL] context-exploit: Memory poisoning via crafted conversation history</div>
+      <div class="high">[HIGH] secret-exposure: API key leaked in error response (line 847)</div>
+      <div class="high">[HIGH] bridge-exploit: Agent impersonation via forged task payload</div>
+      <div class="high">[HIGH] voice-pipeline: Whisper hallucination triggers command injection</div>
+      <div class="med">[MEDIUM] cedar-bypass: Unicode normalization bypasses policy check</div>
+      <div class="med">[MEDIUM] supply-chain: Dependency has known CVE (axios prototype pollution)</div>
+      <br>
+      <div class="safe">[scan] Complete: 7 findings (2 CRITICAL, 3 HIGH, 2 MEDIUM)</div>
+      <div class="safe">[scan] Report saved: vault/Audits/Security/2026-04-04-wraith-scan.md</div>
+    </div>
+  </div>
+</section>
+
+<!-- ATTACK SURFACE -->
+<section id="attack-surface" class="py-20 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-bold text-white mb-4">Attack surfaces traditional scanners miss</h2>
+      <p class="text-dark-200 max-w-xl mx-auto">AI systems introduce entirely new vulnerability classes. Wraith was built from the ground up to find them.</p>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="card p-6 glow">
+        <div class="feature-icon mb-4">&#x1F4AC;</div>
+        <h3 class="font-bold text-white mb-2">Prompt Injection</h3>
+        <p class="text-sm text-dark-200">System prompt override, jailbreak patterns, instruction hijacking across every input channel.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1F9E0;</div>
+        <h3 class="font-bold text-white mb-2">Memory Poisoning</h3>
+        <p class="text-sm text-dark-200">Context window injection, conversation history manipulation, register pollution attacks.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1F510;</div>
+        <h3 class="font-bold text-white mb-2">Secret Exposure</h3>
+        <p class="text-sm text-dark-200">API keys, tokens, and credentials leaking through logs, error messages, and AI responses.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1F916;</div>
+        <h3 class="font-bold text-white mb-2">Agent Exploitation</h3>
+        <p class="text-sm text-dark-200">Bridge task injection, agent impersonation, privilege escalation through multi-agent communication.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1F3A4;</div>
+        <h3 class="font-bold text-white mb-2">Voice Pipeline</h3>
+        <p class="text-sm text-dark-200">Audio injection, Whisper hallucination exploitation, TTS manipulation, WebSocket abuse.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1F6E1;</div>
+        <h3 class="font-bold text-white mb-2">Policy Bypass</h3>
+        <p class="text-sm text-dark-200">Cedar policy circumvention, security engine probing, approval flow manipulation.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1F4E6;</div>
+        <h3 class="font-bold text-white mb-2">Supply Chain</h3>
+        <p class="text-sm text-dark-200">npm CVE scanning, skill injection vectors, typosquatting detection, lockfile integrity.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x1F310;</div>
+        <h3 class="font-bold text-white mb-2">Network Scanning</h3>
+        <p class="text-sm text-dark-200">Port and service discovery via nmap, SSL/TLS analysis, HTTP security headers, CORS validation.</p>
+      </div>
+      <div class="card p-6">
+        <div class="feature-icon mb-4">&#x26D3;</div>
+        <h3 class="font-bold text-white mb-2">Attack Chaining</h3>
+        <p class="text-sm text-dark-200">Automated pivot analysis across findings. Discovers multi-step exploitation paths a manual tester would miss.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section id="modules" class="py-20 px-6 border-t border-dark-500">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-bold text-white mb-4">24 scanner modules. Zero configuration.</h2>
+      <p class="text-dark-200 max-w-xl mx-auto">Every module runs autonomously. Point Wraith at a target and walk away.</p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Prompt Injection Testing</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Secret &amp; Credential Scanning</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Bridge/Agent Exploitation</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Context Window Attacks</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Vault Path Traversal</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">API Abuse &amp; Rate Limiting</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Cedar Policy Bypass</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Security Engine Probing</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Voice Pipeline Security</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Supply Chain Audit</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Network Port Scanning (nmap)</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Web Fuzzing (ffuf)</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Dependency CVE Audit</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">SSL/TLS Configuration</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">HTTP Security Headers</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">CORS Misconfiguration</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Finding Database + Regression</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Attack Tree &amp; Pivot Analysis</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">SAST via Semgrep</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">SSRF Detection</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Nuclei Template Scanning</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Business Logic Vulnerabilities</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Execution Guardrails</span></div>
+      <div class="card p-4 flex items-center gap-3"><span class="check">&#10003;</span><span class="text-sm">Report Generation</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section id="comparison" class="py-20 px-6 border-t border-dark-500">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-bold text-white mb-4">Different lane from Burp Suite.</h2>
+      <p class="text-dark-200 max-w-xl mx-auto">Burp tests websites. Wraith tests AI systems. They're not competitors. They're complements.</p>
+    </div>
+    <div class="card p-8">
+      <div class="grid grid-cols-3 gap-4 text-center mb-6 pb-4 border-b border-dark-500">
+        <div class="text-sm font-bold gradient-text">Wraith</div>
+        <div class="text-sm font-bold text-dark-300">Category</div>
+        <div class="text-sm font-bold text-dark-200">Burp Suite Pro</div>
+      </div>
+      <div class="versus-row"><div class="text-sm text-center">AI agent systems</div><div class="text-xs text-dark-300 font-semibold">BUILT FOR</div><div class="text-sm text-center text-dark-200">Web applications</div></div>
+      <div class="versus-row"><div class="text-sm text-center safe">Fully autonomous</div><div class="text-xs text-dark-300 font-semibold">AUTONOMY</div><div class="text-sm text-center text-dark-200">Human-directed</div></div>
+      <div class="versus-row"><div class="text-sm text-center safe">10+ AI-specific modules</div><div class="text-xs text-dark-300 font-semibold">AI ATTACK VECTORS</div><div class="text-sm text-center text-dark-200">None</div></div>
+      <div class="versus-row"><div class="text-sm text-center safe">$149 / $497 one-time</div><div class="text-xs text-dark-300 font-semibold">PRICING</div><div class="text-sm text-center text-dark-200">$475/year recurring</div></div>
+      <div class="versus-row"><div class="text-sm text-center safe">Yes, fully offline</div><div class="text-xs text-dark-300 font-semibold">SELF-HOSTED</div><div class="text-sm text-center text-dark-200">Cloud licensing required</div></div>
+      <div class="versus-row"><div class="text-sm text-center safe">Zero retention capable</div><div class="text-xs text-dark-300 font-semibold">PRIVACY</div><div class="text-sm text-center text-dark-200">Cloud-dependent</div></div>
+      <div class="versus-row"><div class="text-sm text-center">Basic</div><div class="text-xs text-dark-300 font-semibold">WEB APP TESTING</div><div class="text-sm text-center safe">Industry-leading</div></div>
+      <div class="versus-row"><div class="text-sm text-center">CLI-based</div><div class="text-xs text-dark-300 font-semibold">TRAFFIC INTERCEPTION</div><div class="text-sm text-center safe">Proxy + browser</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="py-20 px-6 border-t border-dark-500">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-bold text-white mb-4">One purchase. Own it forever.</h2>
+      <p class="text-dark-200">No subscriptions. No per-seat fees. No cloud dependency.</p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+
+      <!-- BASE -->
+      <div class="card price-card p-8">
+        <h3 class="text-xl font-bold text-white mb-2">Base</h3>
+        <p class="text-sm text-dark-200 mb-6">Local security testing for developers building AI systems.</p>
+        <div class="mb-6">
+          <span class="text-4xl font-bold text-white">$149</span>
+          <span class="text-dark-300 text-sm ml-2">one-time</span>
+        </div>
+        <ul class="space-y-3 mb-8 text-sm text-dark-100">
+          <li><span class="check">&#10003;</span>All 24 scanner modules</li>
+          <li><span class="check">&#10003;</span>Prompt injection testing</li>
+          <li><span class="check">&#10003;</span>Memory poisoning detection</li>
+          <li><span class="check">&#10003;</span>Secret exposure scanning</li>
+          <li><span class="check">&#10003;</span>Agent exploitation testing</li>
+          <li><span class="check">&#10003;</span>Supply chain audit</li>
+          <li><span class="check">&#10003;</span>Finding database + regression</li>
+          <li><span class="check">&#10003;</span>Localhost &amp; private networks only</li>
+          <li><span class="check">&#10003;</span>Fully offline capable</li>
+        </ul>
+        <button onclick="buyNow('base', event)" class="btn-outline w-full text-center">Get Base</button>
+      </div>
+
+      <!-- PRO -->
+      <div class="card price-card featured p-8 glow">
+        <span class="badge-popular">FULL UNLOCK</span>
+        <h3 class="text-xl font-bold text-white mb-2">Pro</h3>
+        <p class="text-sm text-dark-200 mb-6">Full external pentesting for security professionals.</p>
+        <div class="mb-6">
+          <span class="text-4xl font-bold text-white">$497</span>
+          <span class="text-dark-300 text-sm ml-2">one-time</span>
+        </div>
+        <ul class="space-y-3 mb-8 text-sm text-dark-100">
+          <li><span class="check">&#10003;</span>Everything in Base</li>
+          <li><span class="check">&#10003;</span><strong>External target scanning</strong></li>
+          <li><span class="check">&#10003;</span><strong>VPS deployment guide</strong></li>
+          <li><span class="check">&#10003;</span><strong>Custom module SDK</strong></li>
+          <li><span class="check">&#10003;</span><strong>Priority support</strong></li>
+          <li><span class="check">&#10003;</span>Scan any authorized target</li>
+          <li><span class="check">&#10003;</span>Attack chaining + pivot analysis</li>
+          <li><span class="check">&#10003;</span>Professional report generation</li>
+          <li><span class="check">&#10003;</span>One machine, yours forever</li>
+        </ul>
+        <button onclick="buyNow('pro', event)" class="btn-primary w-full text-center">Get Pro</button>
+      </div>
+    </div>
+    <p class="text-center text-dark-300 text-xs mt-8">Paid in cryptocurrency via NOWPayments. License key delivered instantly after confirmation.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="py-20 px-6 border-t border-dark-500">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-3xl font-bold text-white text-center mb-12">Questions</h2>
+
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What AI systems can Wraith test?<span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">Any AI system built on Claude, GPT, Gemini, Ollama, or custom LLM backends. Wraith tests the infrastructure around the model: prompt handling, memory systems, agent communication, voice pipelines, policy engines, and API surfaces. If it runs an AI agent, Wraith can scan it.</div>
+    </div>
+
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What's the difference between Base and Pro?<span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">Both tiers include all 24 scanner modules. The difference is scope: Base is locked to localhost and private IP ranges (your own machine and local network). Pro unlocks external target scanning for testing remote infrastructure, plus includes a VPS deployment guide, custom module SDK, and priority support.</div>
+    </div>
+
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Does Wraith phone home?<span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">No. License validation is entirely offline using cryptographic verification. No activation server, no telemetry, no usage tracking. Your scan results never leave your machine.</div>
+    </div>
+
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">How does this compare to Burp Suite Pro?<span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">Different tools for different jobs. Burp Suite is the industry standard for web application pentesting: HTTP traffic interception, manual request manipulation, browser-based testing. Wraith is purpose-built for AI system security: prompt injection, memory poisoning, agent exploitation, voice pipeline attacks. Burp costs $475 every year. Wraith is a one-time purchase. Most security professionals will want both.</div>
+    </div>
+
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Can I transfer my license to a new machine?<span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">Yes. Contact support with your proof of purchase and we'll issue a replacement key. Each license allows up to 3 machine transfers.</div>
+    </div>
+
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What do I need to run Wraith?<span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">Node.js 20+, npm, and a terminal. Optional: nmap and ffuf for network scanning modules (installable via package manager). Wraith runs on Linux, macOS, and WSL2 on Windows. No Docker required.</div>
+    </div>
+
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Is this legal to use?<span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">Wraith is a security testing tool. Use it only on systems you own or have written authorization to test. The Pro tier requires explicit confirmation (--confirm-external flag) before scanning any external target. Unauthorized scanning of systems you don't own is illegal regardless of what tool you use.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="py-12 px-6 border-t border-dark-500">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+    <div class="text-sm text-dark-300">
+      &copy; 2026 Permanently Mobile. All rights reserved.
+    </div>
+    <div class="flex items-center gap-6 text-sm text-dark-300">
+      <a href="https://github.com/Permanently-Mobile/wraith" class="hover:text-white transition">GitHub</a>
+      <a href="mailto:support@permanentlymobile.com" class="hover:text-white transition">Support</a>
+      <a href="/" class="hover:text-white transition">All Products</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+async function buyNow(tier, e) {
+  const btn = e.target;
+  const originalText = btn.textContent;
+  btn.textContent = 'Loading...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('https://pm-payments.nashja2011.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product: 'wraith-' + tier })
+    });
+    const data = await res.json();
+    if (data.invoice_url) {
+      window.location.href = data.invoice_url;
+    } else {
+      throw new Error('No invoice URL');
+    }
+  } catch (err) {
+    btn.textContent = originalText;
+    btn.disabled = false;
+    alert('Payment system temporarily unavailable. Please try again in a moment.');
+  }
+}
+</script>
+
+</body>
+</html>
