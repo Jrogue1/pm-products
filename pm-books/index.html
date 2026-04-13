@@ -3,42 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PM Books -- AI-Powered Bookkeeping That Sets Itself Up</title>
+<title>PM Books — AI-Powered Bookkeeping That Sets Itself Up</title>
+<meta name="description" content="Self-hosted bookkeeping for solo operators. AI categorization, receipt OCR, invoicing, tax-ready reports. Your data never leaves your machine.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Anybody:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   /* =========================================
-     DESIGN DIRECTION: Refined Ledger
-     Aesthetic: Editorial meets old-world finance.
-     DM Serif Display for headings (gravitas),
-     Anybody for body (modern geometric contrast).
-     Color: cool blue/indigo on deep dark. Indigo
-     accent for a modern, technical feel. Dark
-     textures, ruled-line motifs, and a grid
-     that references ledger columns.
+     DESIGN: The Ledger
+     Concept: Old-world financial gravitas meets
+     modern software. Playfair Display for authority,
+     Outfit for clean modern body. Deep ink base with
+     warm amber/gold accent evoking aged paper and
+     brass fixtures. Ruled-line motifs, column-based
+     layouts that reference double-entry bookkeeping.
      ========================================= */
 
   :root {
-    --ink: #0f0f0f;
-    --ink-deep: #0a0a0a;
-    --paper: #e0e0e0;
-    --paper-dim: #bbb;
-    --paper-bright: #f0f0f0;
-    --copper: #6366f1;
-    --copper-light: #818cf8;
-    --copper-dark: #4f46e5;
-    --copper-glow: rgba(99, 102, 241, 0.15);
-    --copper-glow-strong: rgba(99, 102, 241, 0.35);
-    --slate: #888;
-    --slate-light: #999;
-    --slate-dim: #555;
-    --rule: rgba(99, 102, 241, 0.12);
-    --rule-strong: rgba(99, 102, 241, 0.25);
-    --serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
-    --sans: 'Anybody', 'Trebuchet MS', sans-serif;
-    --mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ink: #0b0b0f;
+    --ink-mid: #111118;
+    --ink-card: #13131a;
+    --paper: #e8e4dd;
+    --paper-dim: #b0ada6;
+    --paper-bright: #f2efe8;
+    --gold: #c9a84c;
+    --gold-light: #dfc36e;
+    --gold-dark: #a88b3a;
+    --gold-glow: rgba(201, 168, 76, 0.12);
+    --gold-glow-strong: rgba(201, 168, 76, 0.3);
+    --emerald: #4a9e6e;
+    --emerald-dim: rgba(74, 158, 110, 0.15);
+    --red: #c75050;
+    --red-dim: rgba(199, 80, 80, 0.15);
+    --slate: #7a7770;
+    --slate-light: #9e9a93;
+    --slate-dim: #4a4843;
+    --rule: rgba(201, 168, 76, 0.1);
+    --rule-strong: rgba(201, 168, 76, 0.22);
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans: 'Outfit', 'Segoe UI', sans-serif;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,484 +61,370 @@
     color: var(--paper-dim);
     font-family: var(--sans);
     font-weight: 400;
-    line-height: 1.65;
+    line-height: 1.7;
     overflow-x: hidden;
   }
 
-  /* Noise texture overlay */
+  /* Grain overlay */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     z-index: 9999;
     pointer-events: none;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.028;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
     background-repeat: repeat;
     background-size: 256px 256px;
   }
 
-  /* Selection */
-  ::selection {
-    background: var(--copper);
-    color: #fff;
-  }
+  ::selection { background: var(--gold); color: var(--ink); }
 
   /* --------- UTILITY --------- */
-  .container { max-width: 1140px; margin: 0 auto; padding: 0 2rem; }
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 2rem; }
   .container--narrow { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
-  .container--tight { max-width: 680px; margin: 0 auto; padding: 0 2rem; }
+  .container--tight { max-width: 660px; margin: 0 auto; padding: 0 2rem; }
 
   /* --------- TYPOGRAPHY --------- */
   h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; color: var(--paper); }
-  h1 { font-size: clamp(2.8rem, 6vw, 4.5rem); line-height: 1.08; letter-spacing: -0.02em; }
-  h2 { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.15; }
-  h3 { font-size: 1.25rem; line-height: 1.3; }
+  h1 { font-size: clamp(2.6rem, 5.5vw, 4.2rem); line-height: 1.1; letter-spacing: -0.01em; }
+  h2 { font-size: clamp(1.9rem, 3.8vw, 2.8rem); line-height: 1.15; }
+  h3 { font-size: 1.15rem; line-height: 1.35; }
   p { color: var(--slate-light); }
 
-  .accent { color: var(--copper); }
-  .accent-italic { color: var(--copper); font-family: var(--serif); font-style: italic; }
+  .accent { color: var(--gold); }
+  .accent-i { color: var(--gold); font-family: var(--serif); font-style: italic; }
 
-  /* --------- HORIZONTAL RULES (LEDGER MOTIF) --------- */
-  .ledger-rule {
-    border: none;
-    height: 1px;
-    background: var(--rule);
-    margin: 0;
-  }
-  .ledger-rule--double {
-    border: none;
-    height: 0;
+  /* --------- LEDGER RULES --------- */
+  .rule { border: none; height: 1px; background: var(--rule); margin: 0; }
+  .rule--double {
+    border: none; height: 0;
     border-top: 1px solid var(--rule-strong);
     border-bottom: 1px solid var(--rule-strong);
-    padding-top: 3px;
-    margin: 0;
+    padding-top: 3px; margin: 0;
+  }
+  .rule--gold {
+    border: none; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+    opacity: 0.35;
   }
 
   /* --------- ANIMATIONS --------- */
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
+    from { opacity: 0; transform: translateY(28px); }
     to { opacity: 1; transform: translateY(0); }
   }
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
-  @keyframes slideInLeft {
-    from { opacity: 0; transform: translateX(-40px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-  @keyframes typewriter {
-    from { width: 0; }
-    to { width: 100%; }
-  }
-  @keyframes blink {
-    50% { border-color: transparent; }
+  @keyframes subtlePulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
   }
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
   }
-  @keyframes subtlePulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
+  @keyframes typeCursor {
+    50% { border-color: transparent; }
   }
-  @keyframes ruledSlide {
+  @keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes lineGrow {
     from { transform: scaleX(0); }
     to { transform: scaleX(1); }
   }
-
-  .animate-on-scroll {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+  @keyframes slideRight {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
   }
-  .animate-on-scroll.visible {
+  @keyframes floatSlow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.75s var(--ease), transform 0.75s var(--ease);
+  }
+  .reveal.visible {
     opacity: 1;
     transform: translateY(0);
   }
-
-  /* Stagger children */
-  .stagger > .animate-on-scroll:nth-child(1) { transition-delay: 0ms; }
-  .stagger > .animate-on-scroll:nth-child(2) { transition-delay: 80ms; }
-  .stagger > .animate-on-scroll:nth-child(3) { transition-delay: 160ms; }
-  .stagger > .animate-on-scroll:nth-child(4) { transition-delay: 240ms; }
-  .stagger > .animate-on-scroll:nth-child(5) { transition-delay: 320ms; }
-  .stagger > .animate-on-scroll:nth-child(6) { transition-delay: 400ms; }
+  .stagger > .reveal:nth-child(1) { transition-delay: 0ms; }
+  .stagger > .reveal:nth-child(2) { transition-delay: 100ms; }
+  .stagger > .reveal:nth-child(3) { transition-delay: 200ms; }
+  .stagger > .reveal:nth-child(4) { transition-delay: 300ms; }
+  .stagger > .reveal:nth-child(5) { transition-delay: 400ms; }
+  .stagger > .reveal:nth-child(6) { transition-delay: 500ms; }
 
   /* --------- NAV --------- */
   .nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    padding: 1.25rem 0;
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100; padding: 1.2rem 0;
     transition: background 0.4s, backdrop-filter 0.4s, border-color 0.4s;
     border-bottom: 1px solid transparent;
   }
   .nav.scrolled {
-    background: rgba(15, 15, 15, 0.88);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(11, 11, 15, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-bottom-color: var(--rule);
   }
   .nav__inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
   }
   .nav__brand {
-    display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
+    display: flex; align-items: baseline; gap: 0.35rem;
     text-decoration: none;
   }
-  .nav__brand-apex {
-    font-family: var(--serif);
-    font-size: 1.5rem;
-    color: var(--paper);
+  .nav__brand-pm {
+    font-family: var(--serif); font-size: 1.4rem; color: var(--paper);
     letter-spacing: -0.02em;
   }
   .nav__brand-books {
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 1.5rem;
-    color: var(--copper);
+    font-family: var(--serif); font-style: italic;
+    font-size: 1.4rem; color: var(--gold);
   }
   .nav__links {
-    display: flex;
-    align-items: center;
-    gap: 2.5rem;
-    list-style: none;
+    display: flex; align-items: center; gap: 2.5rem; list-style: none;
   }
   .nav__links a {
-    font-family: var(--sans);
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--slate);
-    text-decoration: none;
-    transition: color 0.25s;
-    position: relative;
+    font-family: var(--sans); font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--slate); text-decoration: none;
+    transition: color 0.25s; position: relative;
   }
   .nav__links a::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: var(--copper);
-    transition: width 0.3s var(--ease-out-expo);
+    content: ''; position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 1px; background: var(--gold);
+    transition: width 0.3s var(--ease);
   }
   .nav__links a:hover { color: var(--paper); }
   .nav__links a:hover::after { width: 100%; }
   .nav__cta {
-    font-family: var(--sans);
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #fff;
-    background: var(--copper);
-    padding: 0.6rem 1.5rem;
-    border-radius: 2px;
-    text-decoration: none;
-    transition: background 0.25s, transform 0.25s;
+    font-family: var(--sans); font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink); background: var(--gold);
+    padding: 0.55rem 1.4rem; border-radius: 2px;
+    text-decoration: none; transition: background 0.25s, transform 0.25s;
   }
   .nav__cta:hover {
-    background: var(--copper-light);
-    transform: translateY(-1px);
+    background: var(--gold-light); transform: translateY(-1px);
+  }
+
+  /* Mobile nav toggle */
+  .nav__toggle {
+    display: none; background: none; border: none; cursor: pointer;
+    width: 28px; height: 20px; position: relative; flex-direction: column;
+    justify-content: space-between;
+  }
+  .nav__toggle span {
+    display: block; width: 100%; height: 2px; background: var(--paper);
+    transition: transform 0.3s, opacity 0.3s;
   }
 
   @media (max-width: 768px) {
     .nav__links { display: none; }
+    .nav__toggle { display: flex; }
+    .nav__links.open {
+      display: flex; flex-direction: column;
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: rgba(11, 11, 15, 0.96);
+      backdrop-filter: blur(20px);
+      padding: 1.5rem 2rem; gap: 1.2rem;
+      border-bottom: 1px solid var(--rule);
+    }
   }
 
   /* --------- HERO --------- */
   .hero {
-    padding: 10rem 0 6rem;
-    position: relative;
-    overflow: hidden;
+    padding: 11rem 0 5rem; position: relative; overflow: hidden;
   }
-  /* Subtle radial glow behind hero */
   .hero::before {
-    content: '';
-    position: absolute;
-    top: -10%;
-    right: -15%;
-    width: 70vw;
-    height: 70vw;
-    max-width: 900px;
-    max-height: 900px;
+    content: ''; position: absolute;
+    top: -20%; right: -10%;
+    width: 60vw; height: 60vw; max-width: 800px; max-height: 800px;
     border-radius: 50%;
-    background: radial-gradient(circle, var(--copper-glow) 0%, transparent 70%);
-    pointer-events: none;
-    animation: subtlePulse 8s ease-in-out infinite;
+    background: radial-gradient(circle, var(--gold-glow) 0%, transparent 65%);
+    pointer-events: none; animation: subtlePulse 10s ease-in-out infinite;
+  }
+  /* Vertical ruled lines in hero background */
+  .hero::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      repeating-linear-gradient(90deg,
+        transparent, transparent 199px,
+        rgba(201, 168, 76, 0.03) 199px, rgba(201, 168, 76, 0.03) 200px
+      );
+    mask-image: linear-gradient(to bottom, transparent, black 30%, black 70%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 30%, black 70%, transparent);
   }
 
   .hero__layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
+    display: grid; grid-template-columns: 1.15fr 1fr;
+    gap: 4rem; align-items: center; position: relative; z-index: 2;
   }
-  .hero__content {
-    animation: fadeUp 0.9s var(--ease-out-expo) both;
+  .hero__content { animation: fadeUp 0.9s var(--ease) both; }
+  .hero__eyebrow {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-family: var(--mono); font-size: 0.68rem; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold); border: 1px solid var(--rule-strong);
+    padding: 0.4rem 1rem; margin-bottom: 2rem;
+    background: rgba(201, 168, 76, 0.04);
   }
-  .hero__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--copper);
-    border: 1px solid var(--rule-strong);
-    padding: 0.4rem 1rem;
-    margin-bottom: 2rem;
-    background: rgba(99, 102, 241, 0.04);
+  .hero__eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold); animation: subtlePulse 2s ease-in-out infinite;
   }
-  .hero__badge-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--copper);
-    animation: subtlePulse 2s ease-in-out infinite;
+  .hero h1 { margin-bottom: 1.5rem; }
+  .hero__sub {
+    font-size: 1.05rem; color: var(--slate-light);
+    max-width: 480px; margin-bottom: 2.5rem; line-height: 1.75;
   }
-  .hero h1 {
-    margin-bottom: 1.5rem;
-  }
-  .hero__subtitle {
-    font-size: 1.1rem;
-    color: var(--slate-light);
-    max-width: 480px;
-    margin-bottom: 2.5rem;
-    line-height: 1.7;
-  }
-  .hero__actions {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .hero__terminal {
-    animation: fadeUp 0.9s var(--ease-out-expo) 0.2s both;
-  }
+  .hero__actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .hero__terminal { animation: fadeUp 0.9s var(--ease) 0.15s both; }
 
   @media (max-width: 900px) {
-    .hero__layout {
-      grid-template-columns: 1fr;
-      gap: 3rem;
-    }
-    .hero__subtitle { max-width: 100%; }
+    .hero__layout { grid-template-columns: 1fr; gap: 3rem; }
+    .hero__sub { max-width: 100%; }
   }
 
   /* --------- BUTTONS --------- */
   .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--sans);
-    font-weight: 700;
-    font-size: 0.85rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s var(--ease-out-expo);
-    position: relative;
-    overflow: hidden;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--sans); font-weight: 700; font-size: 0.82rem;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: all 0.3s var(--ease); position: relative; overflow: hidden;
   }
   .btn--primary {
-    background: var(--copper);
-    color: #fff;
-    padding: 0.9rem 2.2rem;
-    border-radius: 2px;
+    background: var(--gold); color: var(--ink);
+    padding: 0.85rem 2.2rem; border-radius: 2px;
   }
   .btn--primary:hover {
-    background: var(--copper-light);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px var(--copper-glow-strong);
+    background: var(--gold-light); transform: translateY(-2px);
+    box-shadow: 0 8px 30px var(--gold-glow-strong);
   }
   .btn--ghost {
-    background: transparent;
-    color: var(--paper-dim);
-    padding: 0.9rem 2.2rem;
-    border: 1px solid var(--slate-dim);
+    background: transparent; color: var(--paper-dim);
+    padding: 0.85rem 2.2rem; border: 1px solid var(--slate-dim);
     border-radius: 2px;
   }
-  .btn--ghost:hover {
-    border-color: var(--copper);
-    color: var(--copper);
-  }
+  .btn--ghost:hover { border-color: var(--gold); color: var(--gold); }
   .btn--full { width: 100%; }
+  .btn--sm { padding: 0.65rem 1.6rem; font-size: 0.75rem; }
 
   /* --------- TERMINAL --------- */
   .terminal {
-    background: var(--ink-deep);
-    border: 1px solid rgba(99, 102, 241, 0.1);
-    border-radius: 4px;
-    overflow: hidden;
-    font-family: var(--mono);
-    font-size: 0.82rem;
+    background: var(--ink-mid);
+    border: 1px solid rgba(201, 168, 76, 0.08);
+    border-radius: 6px; overflow: hidden;
+    font-family: var(--mono); font-size: 0.8rem;
     box-shadow:
-      0 2px 4px rgba(0,0,0,0.3),
-      0 12px 40px rgba(0,0,0,0.4),
-      inset 0 1px 0 rgba(224, 224, 224, 0.03);
+      0 2px 4px rgba(0,0,0,0.2),
+      0 16px 48px rgba(0,0,0,0.35),
+      inset 0 1px 0 rgba(232, 228, 221, 0.03);
   }
-  .terminal__header {
-    background: rgba(224, 224, 224, 0.03);
-    padding: 0.7rem 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border-bottom: 1px solid rgba(224, 224, 224, 0.05);
+  .terminal__bar {
+    background: rgba(232, 228, 221, 0.035);
+    padding: 0.65rem 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    border-bottom: 1px solid rgba(232, 228, 221, 0.05);
   }
   .terminal__dot { width: 9px; height: 9px; border-radius: 50%; }
   .terminal__title {
-    font-size: 0.72rem;
-    color: var(--slate-dim);
-    margin-left: 0.5rem;
-    font-weight: 500;
+    font-size: 0.7rem; color: var(--slate-dim);
+    margin-left: 0.5rem; font-weight: 500;
   }
   .terminal__body {
-    padding: 1.2rem 1.4rem;
-    line-height: 1.85;
-    color: var(--slate);
+    padding: 1.2rem 1.4rem; line-height: 1.9; color: var(--slate);
+    min-height: 200px;
   }
-  .terminal__body .cmd { color: var(--copper); font-weight: 500; }
+  .terminal__body .cmd { color: var(--gold); font-weight: 600; }
   .terminal__body .prompt { color: var(--slate-dim); }
-  .terminal__body .label { color: var(--copper-light); }
-  .terminal__body .output { color: var(--paper-dim); }
-  .terminal__body .success { color: #7dba6a; }
+  .terminal__body .lbl { color: var(--gold-light); }
+  .terminal__body .out { color: var(--paper-dim); }
+  .terminal__body .ok { color: var(--emerald); }
   .terminal__body .dim { color: var(--slate-dim); }
+  .terminal__body .line { opacity: 0; animation: slideRight 0.4s var(--ease) forwards; }
 
-  /* --------- STATS --------- */
-  .stats {
-    padding: 4.5rem 0;
-    position: relative;
+  /* --------- TRUST BAR --------- */
+  .trust {
+    padding: 4rem 0; position: relative;
   }
-  .stats__grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2rem;
-    text-align: center;
+  .trust__grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem; text-align: center;
   }
-  .stats__item { position: relative; }
-  .stats__item + .stats__item::before {
-    content: '';
-    position: absolute;
-    left: -1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1px;
-    height: 40px;
-    background: var(--rule-strong);
+  .trust__item { position: relative; padding: 0.5rem 0; }
+  .trust__item + .trust__item::before {
+    content: ''; position: absolute;
+    left: -0.75rem; top: 50%; transform: translateY(-50%);
+    width: 1px; height: 36px; background: var(--rule-strong);
   }
-  .stats__number {
-    font-family: var(--serif);
-    font-size: 2.8rem;
-    color: var(--paper);
-    margin-bottom: 0.25rem;
+  .trust__num {
+    font-family: var(--serif); font-size: 2.6rem;
+    color: var(--paper); margin-bottom: 0.2rem;
+    letter-spacing: -0.02em;
   }
-  .stats__label {
-    font-family: var(--sans);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--slate);
+  .trust__label {
+    font-family: var(--sans); font-size: 0.72rem;
+    font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--slate);
   }
 
   @media (max-width: 600px) {
-    .stats__grid { grid-template-columns: repeat(2, 1fr); gap: 2.5rem 1.5rem; }
-    .stats__item + .stats__item::before { display: none; }
+    .trust__grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+    .trust__item + .trust__item::before { display: none; }
   }
 
   /* --------- SECTION HEADERS --------- */
-  .section-header {
-    text-align: center;
-    margin-bottom: 4rem;
+  .sec-head { text-align: center; margin-bottom: 4rem; }
+  .sec-head__ey {
+    font-family: var(--mono); font-size: 0.68rem; font-weight: 500;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem; display: block;
   }
-  .section-header__eyebrow {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--copper);
-    margin-bottom: 1rem;
-    display: block;
-  }
-  .section-header p {
-    font-size: 1.1rem;
-    margin-top: 1rem;
-    max-width: 520px;
-    margin-left: auto;
-    margin-right: auto;
-    color: var(--slate-light);
+  .sec-head p {
+    font-size: 1.05rem; margin-top: 1rem; max-width: 500px;
+    margin-left: auto; margin-right: auto; color: var(--slate-light);
   }
 
   /* --------- HOW IT WORKS --------- */
-  .how {
-    padding: 7rem 0;
-  }
+  .how { padding: 7rem 0; }
   .how__steps {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3rem;
-    position: relative;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem; position: relative;
   }
-  /* Connecting line between steps */
   .how__steps::before {
-    content: '';
-    position: absolute;
-    top: 32px;
-    left: calc(16.66% + 1.5rem);
-    right: calc(16.66% + 1.5rem);
+    content: ''; position: absolute; top: 36px;
+    left: calc(16.66% + 1.5rem); right: calc(16.66% + 1.5rem);
     height: 1px;
-    background: repeating-linear-gradient(90deg, var(--copper) 0px, var(--copper) 4px, transparent 4px, transparent 12px);
-    opacity: 0.3;
+    background: repeating-linear-gradient(90deg, var(--gold) 0px, var(--gold) 3px, transparent 3px, transparent 10px);
+    opacity: 0.25;
   }
-  .how__step {
-    text-align: center;
-    position: relative;
-  }
-  .how__step-num {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
+  .how__step { text-align: center; position: relative; }
+  .how__num {
+    width: 72px; height: 72px; border-radius: 50%;
     border: 1px solid var(--rule-strong);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 1.6rem;
-    color: var(--copper);
-    margin: 0 auto 1.5rem;
-    background: var(--ink);
-    position: relative;
-    z-index: 2;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-style: italic; font-size: 1.8rem;
+    color: var(--gold); margin: 0 auto 1.5rem;
+    background: var(--ink); position: relative; z-index: 2;
     transition: border-color 0.3s, box-shadow 0.3s;
   }
-  .how__step:hover .how__step-num {
-    border-color: var(--copper);
-    box-shadow: 0 0 30px var(--copper-glow);
+  .how__step:hover .how__num {
+    border-color: var(--gold);
+    box-shadow: 0 0 40px var(--gold-glow);
   }
-  .how__step h3 { margin-bottom: 0.75rem; }
-  .how__step p {
-    font-size: 0.9rem;
-    line-height: 1.7;
-    color: var(--slate-light);
-  }
+  .how__step h3 { margin-bottom: 0.7rem; font-size: 1.2rem; }
+  .how__step p { font-size: 0.9rem; line-height: 1.7; color: var(--slate-light); }
 
   @media (max-width: 700px) {
     .how__steps { grid-template-columns: 1fr; gap: 2.5rem; }
@@ -540,197 +432,220 @@
   }
 
   /* --------- FEATURES --------- */
-  .features {
-    padding: 7rem 0;
-  }
+  .features { padding: 7rem 0; }
   .features__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
   }
-  .feature-card {
-    background: rgba(224, 224, 224, 0.02);
+  .f-card {
+    background: var(--ink-card);
     border: 1px solid var(--rule);
-    padding: 2.2rem 2rem;
-    border-radius: 3px;
+    padding: 2rem 1.8rem; border-radius: 4px;
     transition: border-color 0.35s, background 0.35s, transform 0.35s;
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
-  .feature-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+  .f-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--copper), transparent);
-    opacity: 0;
-    transition: opacity 0.35s;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0; transition: opacity 0.35s;
   }
-  .feature-card:hover {
+  .f-card:hover {
     border-color: var(--rule-strong);
-    background: rgba(224, 224, 224, 0.035);
-    transform: translateY(-3px);
+    background: rgba(232, 228, 221, 0.025);
+    transform: translateY(-4px);
   }
-  .feature-card:hover::before { opacity: 1; }
+  .f-card:hover::before { opacity: 1; }
+  .f-card__ico {
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; color: var(--gold);
+    border: 1px solid var(--rule-strong); border-radius: 3px;
+    margin-bottom: 1.2rem; background: rgba(201, 168, 76, 0.04);
+  }
+  .f-card h3 { font-size: 1.05rem; margin-bottom: 0.55rem; }
+  .f-card p { font-size: 0.87rem; line-height: 1.7; color: var(--slate-light); }
+  .f-card__tag {
+    display: inline-block; font-family: var(--mono);
+    font-size: 0.58rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--gold); border: 1px solid var(--rule-strong);
+    padding: 0.15rem 0.5rem; margin-top: 0.8rem;
+    background: rgba(201, 168, 76, 0.04);
+  }
 
-  .feature-card__icon {
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    color: var(--copper);
-    border: 1px solid var(--rule-strong);
-    border-radius: 2px;
-    margin-bottom: 1.3rem;
-    background: rgba(99, 102, 241, 0.04);
+  @media (max-width: 900px) { .features__grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .features__grid { grid-template-columns: 1fr; } }
+
+  /* --------- PRIVACY SECTION --------- */
+  .privacy { padding: 7rem 0; position: relative; overflow: hidden; }
+  .privacy::before {
+    content: ''; position: absolute;
+    bottom: -10%; left: -10%;
+    width: 50vw; height: 50vw; max-width: 600px; max-height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--gold-glow) 0%, transparent 65%);
+    pointer-events: none;
   }
-  .feature-card h3 { font-size: 1.1rem; margin-bottom: 0.6rem; }
-  .feature-card p {
-    font-size: 0.88rem;
-    line-height: 1.7;
-    color: var(--slate-light);
+  .privacy__layout {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4rem; align-items: center; position: relative; z-index: 2;
   }
+  .privacy__content {}
+  .privacy__content h2 { margin-bottom: 1.5rem; }
+  .privacy__content > p {
+    font-size: 1rem; line-height: 1.75; margin-bottom: 1.5rem;
+  }
+  .privacy__points { list-style: none; }
+  .privacy__points li {
+    display: flex; align-items: flex-start; gap: 0.8rem;
+    padding: 0.6rem 0; font-size: 0.92rem; color: var(--paper-dim);
+  }
+  .privacy__check {
+    flex-shrink: 0; margin-top: 0.2rem;
+    color: var(--emerald); font-size: 0.8rem;
+  }
+
+  .privacy__vault {
+    position: relative;
+  }
+  .vault-visual {
+    background: var(--ink-card);
+    border: 1px solid var(--rule);
+    border-radius: 6px; padding: 2.5rem;
+    text-align: center;
+  }
+  .vault-visual__lock {
+    font-size: 3.5rem; margin-bottom: 1.5rem;
+    display: block; animation: floatSlow 4s ease-in-out infinite;
+  }
+  .vault-visual__layers {
+    display: flex; flex-direction: column; gap: 0.6rem;
+  }
+  .vault-layer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.7rem 1.2rem;
+    background: rgba(232, 228, 221, 0.02);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    font-family: var(--mono); font-size: 0.75rem;
+  }
+  .vault-layer__name { color: var(--paper-dim); }
+  .vault-layer__status { color: var(--emerald); font-weight: 600; font-size: 0.7rem; }
 
   @media (max-width: 900px) {
-    .features__grid { grid-template-columns: 1fr 1fr; }
+    .privacy__layout { grid-template-columns: 1fr; gap: 3rem; }
   }
-  @media (max-width: 600px) {
-    .features__grid { grid-template-columns: 1fr; }
+
+  /* --------- COMPARISON --------- */
+  .compare { padding: 7rem 0; }
+  .compare__table {
+    width: 100%; border-collapse: collapse; margin-top: 0;
+  }
+  .compare__table thead th {
+    font-family: var(--sans); font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--slate); padding: 1rem 1.2rem;
+    border-bottom: 2px solid var(--rule-strong);
+    text-align: center;
+  }
+  .compare__table thead th:first-child { text-align: left; }
+  .compare__table thead th.highlight {
+    color: var(--gold);
+    background: rgba(201, 168, 76, 0.04);
+    border-bottom-color: var(--gold-dark);
+  }
+  .compare__table tbody td {
+    padding: 0.85rem 1.2rem; text-align: center;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.88rem; color: var(--paper-dim);
+  }
+  .compare__table tbody td:first-child {
+    text-align: left; color: var(--paper); font-weight: 500;
+  }
+  .compare__table tbody td.highlight {
+    background: rgba(201, 168, 76, 0.03);
+  }
+  .compare__table .yes { color: var(--emerald); }
+  .compare__table .no { color: var(--red); opacity: 0.7; }
+  .compare__table .partial { color: var(--slate-light); }
+
+  @media (max-width: 700px) {
+    .compare__table { font-size: 0.82rem; }
+    .compare__table thead th,
+    .compare__table tbody td { padding: 0.65rem 0.6rem; }
   }
 
   /* --------- PRICING --------- */
-  .pricing {
-    padding: 7rem 0;
-  }
+  .pricing { padding: 7rem 0; }
   .pricing__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    max-width: 820px;
-    margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1.5rem; max-width: 820px; margin: 0 auto;
   }
-  .price-card {
-    background: rgba(224, 224, 224, 0.02);
+  .p-card {
+    background: var(--ink-card);
     border: 1px solid var(--rule);
-    border-radius: 3px;
-    padding: 2.5rem;
+    border-radius: 4px; padding: 2.5rem;
     position: relative;
     transition: border-color 0.35s, transform 0.35s;
   }
-  .price-card:hover {
-    transform: translateY(-3px);
+  .p-card:hover { transform: translateY(-3px); }
+  .p-card--pro {
+    border-color: var(--gold-dark);
+    background: rgba(201, 168, 76, 0.025);
   }
-  .price-card--featured {
-    border-color: var(--copper);
-    background: rgba(99, 102, 241, 0.03);
-  }
-  .price-card--featured::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+  .p-card--pro::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, var(--copper-dark), var(--copper), var(--copper-light), var(--copper));
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light), var(--gold));
     background-size: 200% 100%;
     animation: shimmer 4s linear infinite;
   }
-  .price-card__badge {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--copper);
+  .p-card__badge {
+    position: absolute; top: 1rem; right: 1rem;
+    font-family: var(--mono); font-size: 0.6rem;
+    font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--gold);
     border: 1px solid var(--rule-strong);
-    padding: 0.2rem 0.7rem;
-    background: rgba(99, 102, 241, 0.06);
+    padding: 0.2rem 0.65rem; background: rgba(201, 168, 76, 0.06);
   }
-  .price-card__tier {
-    font-family: var(--serif);
-    font-size: 1.4rem;
-    color: var(--paper);
-    margin-bottom: 0.4rem;
+  .p-card__tier {
+    font-family: var(--serif); font-size: 1.35rem;
+    color: var(--paper); margin-bottom: 0.35rem;
   }
-  .price-card__desc {
-    font-size: 0.88rem;
-    color: var(--slate-light);
-    margin-bottom: 1.5rem;
+  .p-card__desc {
+    font-size: 0.88rem; color: var(--slate-light); margin-bottom: 1.5rem;
   }
-  .price-card__amount {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    margin-bottom: 0.25rem;
+  .p-card__price {
+    display: flex; align-items: baseline; gap: 0.5rem;
+    margin-bottom: 0.2rem;
   }
-  .price-card__dollar {
-    font-family: var(--serif);
-    font-size: 3rem;
-    color: var(--paper);
-    letter-spacing: -0.03em;
-    line-height: 1;
+  .p-card__amount {
+    font-family: var(--serif); font-size: 2.8rem;
+    color: var(--paper); letter-spacing: -0.03em; line-height: 1;
   }
-  .price-card__period {
-    font-size: 0.82rem;
-    color: var(--slate);
+  .p-card__period { font-size: 0.82rem; color: var(--slate); }
+  .p-card__alt { font-size: 0.75rem; color: var(--slate-dim); margin-bottom: 2rem; }
+  .p-card__list { list-style: none; margin-bottom: 2rem; }
+  .p-card__list li {
+    font-size: 0.88rem; color: var(--paper-dim);
+    padding: 0.4rem 0; display: flex; align-items: flex-start; gap: 0.65rem;
   }
-  .price-card__alt {
-    font-size: 0.75rem;
-    color: var(--slate-dim);
-    margin-bottom: 2rem;
-  }
-  .price-card__features {
-    list-style: none;
-    margin-bottom: 2rem;
-  }
-  .price-card__features li {
-    font-size: 0.88rem;
-    color: var(--paper-dim);
-    padding: 0.45rem 0;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.7rem;
-  }
-  .price-card__features li strong { color: var(--paper); }
-  .price-card__check {
-    color: var(--copper);
-    font-size: 0.8rem;
-    flex-shrink: 0;
-    margin-top: 0.15rem;
-  }
+  .p-card__list li strong { color: var(--paper); }
+  .p-card__chk { color: var(--gold); font-size: 0.75rem; flex-shrink: 0; margin-top: 0.15rem; }
 
   .pricing__addon {
-    max-width: 820px;
-    margin: 2rem auto 0;
-    background: rgba(224, 224, 224, 0.02);
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    padding: 2rem 2.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
+    max-width: 820px; margin: 1.5rem auto 0;
+    background: var(--ink-card); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 1.8rem 2.2rem;
+    display: flex; align-items: center; gap: 1.5rem;
   }
-  .pricing__addon-icon {
-    font-size: 1.8rem;
-    flex-shrink: 0;
-  }
-  .pricing__addon h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
+  .pricing__addon-ico { font-size: 1.6rem; flex-shrink: 0; }
+  .pricing__addon h3 { font-size: 1rem; margin-bottom: 0.25rem; }
   .pricing__addon p { font-size: 0.88rem; color: var(--slate-light); line-height: 1.6; }
   .pricing__addon strong { color: var(--paper); }
-  .pricing__addon-note { font-size: 0.75rem; color: var(--slate-dim); margin-top: 0.3rem; }
-
   .pricing__crypto {
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--slate);
-    margin-top: 2.5rem;
+    text-align: center; font-size: 0.82rem;
+    color: var(--slate); margin-top: 2rem;
   }
 
   @media (max-width: 700px) {
@@ -739,110 +654,73 @@
   }
 
   /* --------- FAQ --------- */
-  .faq {
-    padding: 7rem 0;
-  }
-  .faq-item {
-    border-bottom: 1px solid var(--rule);
-    overflow: hidden;
-  }
-  .faq-item:first-child {
-    border-top: 1px solid var(--rule);
-  }
+  .faq { padding: 7rem 0; }
+  .faq-item { border-bottom: 1px solid var(--rule); overflow: hidden; }
+  .faq-item:first-child { border-top: 1px solid var(--rule); }
   .faq-q {
-    cursor: pointer;
-    padding: 1.4rem 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--paper);
-    transition: color 0.25s;
-    user-select: none;
+    cursor: pointer; padding: 1.3rem 0;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--sans); font-weight: 600; font-size: 0.98rem;
+    color: var(--paper); transition: color 0.25s; user-select: none;
   }
-  .faq-q:hover { color: var(--copper); }
+  .faq-q:hover { color: var(--gold); }
   .faq-arrow {
     color: var(--slate-dim);
-    transition: transform 0.35s var(--ease-out-expo), color 0.25s;
-    font-size: 0.7rem;
-    flex-shrink: 0;
-    margin-left: 1rem;
+    transition: transform 0.35s var(--ease), color 0.25s;
+    font-size: 0.65rem; flex-shrink: 0; margin-left: 1rem;
   }
   .faq-a {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.45s var(--ease-out-expo), padding 0.35s;
-    padding: 0 0 0;
-    color: var(--slate-light);
-    font-size: 0.92rem;
-    line-height: 1.75;
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.45s var(--ease), padding 0.35s;
+    padding: 0; color: var(--slate-light);
+    font-size: 0.9rem; line-height: 1.8;
   }
-  .faq-item.open .faq-a {
-    max-height: 300px;
-    padding-bottom: 1.4rem;
+  .faq-item.open .faq-a { max-height: 350px; padding-bottom: 1.3rem; }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); color: var(--gold); }
+
+  /* --------- CTA BAND --------- */
+  .cta-band {
+    padding: 5rem 0; text-align: center; position: relative; overflow: hidden;
   }
-  .faq-item.open .faq-arrow {
-    transform: rotate(180deg);
-    color: var(--copper);
+  .cta-band::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 60% 50% at 50% 50%, var(--gold-glow) 0%, transparent 70%);
   }
+  .cta-band h2 { margin-bottom: 1rem; position: relative; z-index: 2; }
+  .cta-band p {
+    font-size: 1rem; color: var(--slate-light);
+    margin-bottom: 2rem; position: relative; z-index: 2;
+  }
+  .cta-band .btn { position: relative; z-index: 2; }
 
   /* --------- FOOTER --------- */
-  .footer {
-    padding: 4rem 0;
-    text-align: center;
-  }
+  .footer { padding: 3.5rem 0; text-align: center; }
   .footer__brand {
-    font-family: var(--serif);
-    font-size: 1.1rem;
-    color: var(--paper);
-    margin-bottom: 0.5rem;
+    font-family: var(--serif); font-size: 1.05rem;
+    color: var(--paper); margin-bottom: 0.4rem;
   }
-  .footer__brand em { color: var(--copper); }
-  .footer p {
-    font-size: 0.8rem;
-    color: var(--slate-dim);
+  .footer__brand em { color: var(--gold); }
+  .footer__co {
+    font-size: 0.82rem; color: var(--slate); margin-bottom: 0.2rem;
   }
-  .footer__company {
-    font-size: 0.85rem;
-    color: var(--slate);
-    margin-bottom: 0.3rem;
-  }
-  .footer__company strong { color: var(--paper-dim); }
+  .footer__co strong { color: var(--paper-dim); }
+  .footer p { font-size: 0.78rem; color: var(--slate-dim); }
 
-  /* --------- DECORATIVE ELEMENTS --------- */
-  .deco-line {
-    position: absolute;
-    width: 1px;
-    height: 120px;
-    background: linear-gradient(to bottom, var(--copper), transparent);
-    opacity: 0.15;
-  }
-
-  /* Diagonal ledger lines in background */
-  .ledger-bg {
-    position: relative;
-  }
+  /* --------- LEDGER BACKGROUND --------- */
+  .ledger-bg { position: relative; }
   .ledger-bg::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
+    content: ''; position: absolute; inset: 0; pointer-events: none;
     background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 59px,
-        rgba(99, 102, 241, 0.035) 59px,
-        rgba(99, 102, 241, 0.035) 60px
+      repeating-linear-gradient(0deg,
+        transparent, transparent 59px,
+        rgba(201, 168, 76, 0.025) 59px, rgba(201, 168, 76, 0.025) 60px
       );
-    mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
   }
 
   /* --------- SCROLLBAR --------- */
-  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar { width: 7px; }
   ::-webkit-scrollbar-track { background: var(--ink); }
   ::-webkit-scrollbar-thumb { background: var(--slate-dim); border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--slate); }
@@ -854,16 +732,20 @@
 <nav class="nav" id="nav">
   <div class="container nav__inner">
     <a href="#" class="nav__brand">
-      <span class="nav__brand-apex">PM</span>
+      <span class="nav__brand-pm">PM</span>
       <span class="nav__brand-books">Books</span>
     </a>
-    <ul class="nav__links">
+    <ul class="nav__links" id="navLinks">
       <li><a href="#how-it-works">Process</a></li>
       <li><a href="#features">Features</a></li>
+      <li><a href="#privacy">Privacy</a></li>
       <li><a href="#pricing">Pricing</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <a href="#pricing" class="nav__cta">Get Started</a>
+    <button class="nav__toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
 
@@ -871,13 +753,13 @@
 <section class="hero">
   <div class="container hero__layout">
     <div class="hero__content">
-      <div class="hero__badge">
-        <span class="hero__badge-dot"></span>
+      <div class="hero__eyebrow">
+        <span class="hero__eyebrow-dot"></span>
         Self-Hosted &middot; Private &middot; AI-Powered
       </div>
-      <h1>Bookkeeping that <span class="accent-italic">sets itself up.</span></h1>
-      <p class="hero__subtitle">
-        A self-hosted bookkeeping system for solo operators. TurboTax-style setup, AI categorization, receipt OCR, invoicing, and tax-ready reports. Your financial data never leaves your machine.
+      <h1>Bookkeeping that <span class="accent-i">sets itself up.</span></h1>
+      <p class="hero__sub">
+        A self-hosted system for solo operators. TurboTax-style setup, AI categorization, receipt OCR, invoicing, and Schedule C reports. Your financial data never leaves your machine.
       </p>
       <div class="hero__actions">
         <a href="#pricing" class="btn btn--primary">Get PM Books</a>
@@ -887,195 +769,345 @@
 
     <div class="hero__terminal">
       <div class="terminal">
-        <div class="terminal__header">
+        <div class="terminal__bar">
           <div class="terminal__dot" style="background:#e05a4f"></div>
           <div class="terminal__dot" style="background:#dea123"></div>
           <div class="terminal__dot" style="background:#49a544"></div>
           <span class="terminal__title">pm-books setup</span>
         </div>
-        <div class="terminal__body">
-          <div><span class="prompt">$</span> <span class="cmd">node setup-wizard.mjs</span></div>
+        <div class="terminal__body" id="termBody">
+          <div class="line" style="animation-delay:0.3s"><span class="prompt">$</span> <span class="cmd">node setup-wizard.mjs</span></div>
           <br>
-          <div><span class="label">[wizard]</span> <span class="output">What type of business do you run?</span></div>
-          <div class="success">&gt; Freelancer</div>
+          <div class="line" style="animation-delay:0.8s"><span class="lbl">[wizard]</span> <span class="out">What type of business do you run?</span></div>
+          <div class="line" style="animation-delay:1.2s"><span class="ok">&gt; Freelancer</span></div>
           <br>
-          <div><span class="label">[wizard]</span> <span class="output">What industry?</span></div>
-          <div class="success">&gt; Technology / Software</div>
+          <div class="line" style="animation-delay:1.7s"><span class="lbl">[wizard]</span> <span class="out">What industry?</span></div>
+          <div class="line" style="animation-delay:2.1s"><span class="ok">&gt; Technology / Software</span></div>
           <br>
-          <div><span class="label">[wizard]</span> <span class="output">Generating chart of accounts...</span></div>
-          <div class="success">[done] 24 accounts created with Schedule C tax mappings</div>
-          <div class="success">[done] 12 expense categories with AI keywords</div>
-          <div class="success">[done] Ready! Visit http://localhost:8920</div>
+          <div class="line" style="animation-delay:2.6s"><span class="lbl">[wizard]</span> <span class="out">Generating chart of accounts...</span></div>
+          <div class="line" style="animation-delay:3.2s"><span class="ok">&#10003; 24 accounts with Schedule C mappings</span></div>
+          <div class="line" style="animation-delay:3.6s"><span class="ok">&#10003; 12 expense categories with AI keywords</span></div>
+          <div class="line" style="animation-delay:4.0s"><span class="ok">&#10003; Database encrypted (AES-256)</span></div>
+          <div class="line" style="animation-delay:4.5s"><span class="ok">&#10003; Ready at http://localhost:8920</span></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ==================== STATS ==================== -->
-<hr class="ledger-rule">
-<section class="stats">
+<!-- ==================== TRUST BAR ==================== -->
+<hr class="rule">
+<section class="trust">
   <div class="container">
-    <div class="stats__grid">
-      <div class="stats__item animate-on-scroll">
-        <div class="stats__number">24</div>
-        <div class="stats__label">Accounts Generated</div>
+    <div class="trust__grid">
+      <div class="trust__item reveal">
+        <div class="trust__num" data-count="40">40+</div>
+        <div class="trust__label">API Endpoints</div>
       </div>
-      <div class="stats__item animate-on-scroll">
-        <div class="stats__number">AI</div>
-        <div class="stats__label">Auto-Categorization</div>
+      <div class="trust__item reveal">
+        <div class="trust__num">AI</div>
+        <div class="trust__label">Auto-Categorization</div>
       </div>
-      <div class="stats__item animate-on-scroll">
-        <div class="stats__number">0</div>
-        <div class="stats__label">Cloud Dependencies</div>
+      <div class="trust__item reveal">
+        <div class="trust__num" data-count="0">0</div>
+        <div class="trust__label">Cloud Dependencies</div>
       </div>
-      <div class="stats__item animate-on-scroll">
-        <div class="stats__number">100%</div>
-        <div class="stats__label">Your Data, Your Machine</div>
+      <div class="trust__item reveal">
+        <div class="trust__num">AES-256</div>
+        <div class="trust__label">Encrypted at Rest</div>
       </div>
     </div>
   </div>
 </section>
-<hr class="ledger-rule">
+<hr class="rule">
 
 <!-- ==================== HOW IT WORKS ==================== -->
 <section id="how-it-works" class="how ledger-bg">
   <div class="container">
-    <div class="section-header animate-on-scroll">
-      <span class="section-header__eyebrow">Process</span>
-      <h2>Three steps to a<br><span class="accent-italic">complete ledger.</span></h2>
+    <div class="sec-head reveal">
+      <span class="sec-head__ey">Process</span>
+      <h2>Three steps to a<br><span class="accent-i">complete ledger.</span></h2>
       <p>No accountant required. No accounting knowledge assumed.</p>
     </div>
 
     <div class="how__steps stagger">
-      <div class="how__step animate-on-scroll">
-        <div class="how__step-num">1</div>
+      <div class="how__step reveal">
+        <div class="how__num">1</div>
         <h3>Setup Wizard</h3>
-        <p>Answer a few questions about your business. PM Books generates a chart of accounts, expense categories, and tax mappings automatically.</p>
+        <p>Answer questions about your business. PM Books generates accounts, categories, and tax mappings automatically.</p>
       </div>
-      <div class="how__step animate-on-scroll">
-        <div class="how__step-num">2</div>
+      <div class="how__step reveal">
+        <div class="how__num">2</div>
         <h3>Log Expenses</h3>
-        <p>Type or talk to the AI assistant, upload receipts for OCR, or enter transactions manually. AI handles categorization and account mapping.</p>
+        <p>Type, talk, upload receipts, or import CSV. AI handles categorization and double-entry account mapping.</p>
       </div>
-      <div class="how__step animate-on-scroll">
-        <div class="how__step-num">3</div>
+      <div class="how__step reveal">
+        <div class="how__num">3</div>
         <h3>Pull Reports</h3>
-        <p>Profit &amp; loss, balance sheets, expense breakdowns, and Schedule C exports. Tax-ready at the push of a button.</p>
+        <p>P&amp;L, expense breakdowns, and Schedule C exports. Tax-ready at the push of a button.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ==================== FEATURES ==================== -->
-<hr class="ledger-rule">
+<hr class="rule">
 <section id="features" class="features ledger-bg">
   <div class="container">
-    <div class="section-header animate-on-scroll">
-      <span class="section-header__eyebrow">Capabilities</span>
-      <h2>Everything you need.<br><span class="accent-italic">Nothing you don't.</span></h2>
+    <div class="sec-head reveal">
+      <span class="sec-head__ey">Capabilities</span>
+      <h2>Everything you need.<br><span class="accent-i">Nothing you don't.</span></h2>
       <p>A complete bookkeeping system built for people who hate bookkeeping.</p>
     </div>
 
     <div class="features__grid stagger">
-      <div class="feature-card animate-on-scroll">
-        <div class="feature-card__icon">&#9881;</div>
+      <div class="f-card reveal">
+        <div class="f-card__ico">&#9881;</div>
         <h3>TurboTax-Style Setup</h3>
-        <p>Guided wizard asks about your business type, industry, and tax situation. Generates a full chart of accounts with Schedule C mappings in seconds.</p>
+        <p>Guided wizard builds a chart of accounts, industry-specific categories, and Schedule C mappings in seconds.</p>
       </div>
-      <div class="feature-card animate-on-scroll">
-        <div class="feature-card__icon">&#129302;</div>
-        <h3>AI-Powered Categorization</h3>
-        <p>Describe an expense in plain English and the AI maps it to the right category and account. Learns your patterns over time.</p>
+      <div class="f-card reveal">
+        <div class="f-card__ico">&#129302;</div>
+        <h3>AI Categorization</h3>
+        <p>Describe an expense in plain English. AI maps it to the right category and account. Learns your patterns.</p>
       </div>
-      <div class="feature-card animate-on-scroll">
-        <div class="feature-card__icon">&#128247;</div>
+      <div class="f-card reveal">
+        <div class="f-card__ico">&#128247;</div>
         <h3>Receipt OCR</h3>
-        <p>Snap a photo, upload it, and AI extracts the vendor, amount, date, and line items. Automatically creates a categorized transaction.</p>
+        <p>Snap a photo, upload it. AI extracts vendor, amount, date, and line items. Auto-creates the transaction.</p>
       </div>
-      <div class="feature-card animate-on-scroll">
-        <div class="feature-card__icon">&#128196;</div>
+      <div class="f-card reveal">
+        <div class="f-card__ico">&#128196;</div>
         <h3>Professional Invoicing</h3>
-        <p>Create and send branded invoices with PDF generation. Track payment status, send reminders, and manage clients from one place.</p>
+        <p>Create branded invoices with PDF generation. Track payments, send reminders, manage clients.</p>
       </div>
-      <div class="feature-card animate-on-scroll">
-        <div class="feature-card__icon">&#128176;</div>
+      <div class="f-card reveal">
+        <div class="f-card__ico">&#128176;</div>
         <h3>Budget Tracking</h3>
-        <p>Set monthly budgets per category. Visual progress bars, overspend alerts, and period-over-period comparisons to keep spending in check.</p>
+        <p>Monthly budgets per category. Visual progress, overspend alerts, and period-over-period comparisons.</p>
       </div>
-      <div class="feature-card animate-on-scroll">
-        <div class="feature-card__icon">&#128200;</div>
+      <div class="f-card reveal">
+        <div class="f-card__ico">&#128200;</div>
         <h3>Tax-Ready Reports</h3>
-        <p>Profit &amp; loss, balance sheet, expense breakdown, and Schedule C export. Pull everything your accountant needs in one click.</p>
+        <p>P&amp;L, balance sheet, expense breakdown, and Schedule C export. One click for your accountant.</p>
+      </div>
+      <div class="f-card reveal">
+        <div class="f-card__ico">&#128241;</div>
+        <h3>Telegram Bot</h3>
+        <p>"Lunch $12 at Chipotle" creates a categorized transaction. Send receipts as photos. Check balances on the go.</p>
+        <span class="f-card__tag">Pro</span>
+      </div>
+      <div class="f-card reveal">
+        <div class="f-card__ico">&#127970;</div>
+        <h3>Bank Reconciliation</h3>
+        <p>Import bank statements. Auto-match transactions. Flag discrepancies. Keep your books audit-ready.</p>
+        <span class="f-card__tag">Pro</span>
+      </div>
+      <div class="f-card reveal">
+        <div class="f-card__ico">&#128663;</div>
+        <h3>Mileage Tracking</h3>
+        <p>IRS-ready mileage log with business, medical, and charity categories. Deduction-ready at tax time.</p>
+        <span class="f-card__tag">Pro</span>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ==================== PRIVACY ==================== -->
+<hr class="rule">
+<section id="privacy" class="privacy">
+  <div class="container">
+    <div class="privacy__layout">
+      <div class="privacy__content reveal">
+        <span class="sec-head__ey" style="display:block; text-align:left; margin-bottom:1rem;">Your Data. Your Machine.</span>
+        <h2>Privacy is the <span class="accent-i">architecture,</span> not a feature.</h2>
+        <p>PM Books doesn't "promise" not to look at your data. It physically can't. Everything runs on your hardware. The AI uses Venice, a zero-data-retention provider that discards your prompts the moment they're processed.</p>
+        <ul class="privacy__points">
+          <li><span class="privacy__check">&#10003;</span>SQLite database encrypted with AES-256. You hold the key.</li>
+          <li><span class="privacy__check">&#10003;</span>Zero cloud dependencies. Runs on localhost, period.</li>
+          <li><span class="privacy__check">&#10003;</span>Venice AI: zero data retention. Nothing stored, nothing trained on.</li>
+          <li><span class="privacy__check">&#10003;</span>No telemetry, no analytics, no phone-home. Ever.</li>
+          <li><span class="privacy__check">&#10003;</span>Full audit log with append-only action tracking.</li>
+        </ul>
+      </div>
+      <div class="privacy__vault reveal" style="transition-delay:150ms">
+        <div class="vault-visual">
+          <span class="vault-visual__lock">&#128274;</span>
+          <div class="vault-visual__layers">
+            <div class="vault-layer">
+              <span class="vault-layer__name">Database</span>
+              <span class="vault-layer__status">AES-256 &#10003;</span>
+            </div>
+            <div class="vault-layer">
+              <span class="vault-layer__name">AI Provider</span>
+              <span class="vault-layer__status">Zero Retention &#10003;</span>
+            </div>
+            <div class="vault-layer">
+              <span class="vault-layer__name">Network</span>
+              <span class="vault-layer__status">Localhost Only &#10003;</span>
+            </div>
+            <div class="vault-layer">
+              <span class="vault-layer__name">Telemetry</span>
+              <span class="vault-layer__status">None &#10003;</span>
+            </div>
+            <div class="vault-layer">
+              <span class="vault-layer__name">Audit Trail</span>
+              <span class="vault-layer__status">Append-Only &#10003;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== COMPARISON ==================== -->
+<hr class="rule">
+<section class="compare ledger-bg">
+  <div class="container--narrow">
+    <div class="sec-head reveal">
+      <span class="sec-head__ey">Comparison</span>
+      <h2>The <span class="accent-i">honest</span> lineup.</h2>
+      <p>See what you're actually getting versus the usual suspects.</p>
+    </div>
+
+    <div class="reveal">
+      <table class="compare__table">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="highlight">PM Books</th>
+            <th>QuickBooks</th>
+            <th>FreshBooks</th>
+            <th>Wave</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Self-hosted</td>
+            <td class="highlight"><span class="yes">&#10003;</span></td>
+            <td><span class="no">&#10005;</span></td>
+            <td><span class="no">&#10005;</span></td>
+            <td><span class="no">&#10005;</span></td>
+          </tr>
+          <tr>
+            <td>Data stays local</td>
+            <td class="highlight"><span class="yes">&#10003;</span></td>
+            <td><span class="no">&#10005;</span></td>
+            <td><span class="no">&#10005;</span></td>
+            <td><span class="no">&#10005;</span></td>
+          </tr>
+          <tr>
+            <td>AI categorization</td>
+            <td class="highlight"><span class="yes">&#10003;</span></td>
+            <td><span class="partial">Basic</span></td>
+            <td><span class="no">&#10005;</span></td>
+            <td><span class="no">&#10005;</span></td>
+          </tr>
+          <tr>
+            <td>Receipt OCR</td>
+            <td class="highlight"><span class="yes">&#10003;</span></td>
+            <td><span class="yes">&#10003;</span></td>
+            <td><span class="yes">&#10003;</span></td>
+            <td><span class="yes">&#10003;</span></td>
+          </tr>
+          <tr>
+            <td>One-time pricing</td>
+            <td class="highlight"><span class="yes">&#10003;</span></td>
+            <td><span class="no">&#10005;</span></td>
+            <td><span class="no">&#10005;</span></td>
+            <td><span class="partial">Free*</span></td>
+          </tr>
+          <tr>
+            <td>No telemetry</td>
+            <td class="highlight"><span class="yes">&#10003;</span></td>
+            <td><span class="no">&#10005;</span></td>
+            <td><span class="no">&#10005;</span></td>
+            <td><span class="no">&#10005;</span></td>
+          </tr>
+          <tr>
+            <td>Encrypted database</td>
+            <td class="highlight"><span class="yes">&#10003;</span></td>
+            <td><span class="partial">Cloud</span></td>
+            <td><span class="partial">Cloud</span></td>
+            <td><span class="partial">Cloud</span></td>
+          </tr>
+          <tr>
+            <td>Telegram bot</td>
+            <td class="highlight"><span class="yes">&#10003;</span></td>
+            <td><span class="no">&#10005;</span></td>
+            <td><span class="no">&#10005;</span></td>
+            <td><span class="no">&#10005;</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <!-- ==================== PRICING ==================== -->
-<hr class="ledger-rule">
+<hr class="rule">
 <section id="pricing" class="pricing">
   <div class="container">
-    <div class="section-header animate-on-scroll">
-      <span class="section-header__eyebrow">Pricing</span>
-      <h2>One payment.<br><span class="accent-italic">You own it.</span></h2>
+    <div class="sec-head reveal">
+      <span class="sec-head__ey">Pricing</span>
+      <h2>One payment.<br><span class="accent-i">You own it.</span></h2>
       <p>No monthly drain. No data harvesting. No hidden fees.</p>
     </div>
 
     <div class="pricing__grid stagger">
 
-      <!-- Base Tier -->
-      <div class="price-card animate-on-scroll">
-        <div class="price-card__tier">Base</div>
-        <p class="price-card__desc">Core bookkeeping, invoicing, and basic reports.</p>
-        <div class="price-card__amount">
-          <span class="price-card__dollar">$147</span>
-          <span class="price-card__period">one-time</span>
+      <!-- Base -->
+      <div class="p-card reveal">
+        <div class="p-card__tier">Base</div>
+        <p class="p-card__desc">Core bookkeeping, invoicing, and reports.</p>
+        <div class="p-card__price">
+          <span class="p-card__amount">$147</span>
+          <span class="p-card__period">one-time</span>
         </div>
-        <div class="price-card__alt">or $19/mo</div>
-        <ul class="price-card__features">
-          <li><span class="price-card__check">&#10003;</span>TurboTax-style setup wizard</li>
-          <li><span class="price-card__check">&#10003;</span>Transaction tracking &amp; categorization</li>
-          <li><span class="price-card__check">&#10003;</span>Professional invoicing with PDF</li>
-          <li><span class="price-card__check">&#10003;</span>Basic reports (P&amp;L, expense breakdown)</li>
-          <li><span class="price-card__check">&#10003;</span>AI chat assistant (50 messages/mo)</li>
-          <li><span class="price-card__check">&#10003;</span>Receipt OCR (10 scans/mo)</li>
-          <li><span class="price-card__check">&#10003;</span>Encrypted local database</li>
+        <div class="p-card__alt">or $19/mo</div>
+        <ul class="p-card__list">
+          <li><span class="p-card__chk">&#10003;</span>TurboTax-style setup wizard</li>
+          <li><span class="p-card__chk">&#10003;</span>Transaction tracking &amp; categorization</li>
+          <li><span class="p-card__chk">&#10003;</span>Professional invoicing with PDF</li>
+          <li><span class="p-card__chk">&#10003;</span>P&amp;L and expense reports</li>
+          <li><span class="p-card__chk">&#10003;</span>AI chat assistant (50 msgs/mo)</li>
+          <li><span class="p-card__chk">&#10003;</span>Receipt OCR (10 scans/mo)</li>
+          <li><span class="p-card__chk">&#10003;</span>AES-256 encrypted database</li>
         </ul>
         <button onclick="buyNow('base', event)" class="btn btn--ghost btn--full">Get Base</button>
       </div>
 
-      <!-- Pro Tier -->
-      <div class="price-card price-card--featured animate-on-scroll">
-        <div class="price-card__badge">Full Power</div>
-        <div class="price-card__tier">Pro</div>
-        <p class="price-card__desc">Everything. No limits worth hitting.</p>
-        <div class="price-card__amount">
-          <span class="price-card__dollar">$297</span>
-          <span class="price-card__period">one-time</span>
+      <!-- Pro -->
+      <div class="p-card p-card--pro reveal">
+        <div class="p-card__badge">Full Power</div>
+        <div class="p-card__tier">Pro</div>
+        <p class="p-card__desc">Everything. No limits worth hitting.</p>
+        <div class="p-card__price">
+          <span class="p-card__amount">$297</span>
+          <span class="p-card__period">one-time</span>
         </div>
-        <div class="price-card__alt">or $39/mo</div>
-        <ul class="price-card__features">
-          <li><span class="price-card__check">&#10003;</span><strong>Telegram bot integration</strong></li>
-          <li><span class="price-card__check">&#10003;</span><strong>Unlimited AI chat &amp; receipt OCR</strong></li>
-          <li><span class="price-card__check">&#10003;</span>Tax export (Schedule C)</li>
-          <li><span class="price-card__check">&#10003;</span>Budget tracking &amp; alerts</li>
-          <li><span class="price-card__check">&#10003;</span>Mileage tracking</li>
-          <li><span class="price-card__check">&#10003;</span>Bank reconciliation</li>
-          <li><span class="price-card__check">&#10003;</span>All report types (balance sheet, tax summary)</li>
-          <li><span class="price-card__check">&#10003;</span>Everything in Base</li>
+        <div class="p-card__alt">or $39/mo</div>
+        <ul class="p-card__list">
+          <li><span class="p-card__chk">&#10003;</span><strong>Telegram bot integration</strong></li>
+          <li><span class="p-card__chk">&#10003;</span><strong>Unlimited AI chat &amp; receipt OCR</strong></li>
+          <li><span class="p-card__chk">&#10003;</span>Schedule C tax export</li>
+          <li><span class="p-card__chk">&#10003;</span>Budget tracking &amp; alerts</li>
+          <li><span class="p-card__chk">&#10003;</span>Mileage tracking (IRS-ready)</li>
+          <li><span class="p-card__chk">&#10003;</span>Bank reconciliation</li>
+          <li><span class="p-card__chk">&#10003;</span>All report types</li>
+          <li><span class="p-card__chk">&#10003;</span>Everything in Base</li>
         </ul>
         <button onclick="buyNow('pro', event)" class="btn btn--primary btn--full">Get Pro</button>
       </div>
     </div>
 
     <!-- Setup Add-on -->
-    <div class="pricing__addon animate-on-scroll">
-      <div class="pricing__addon-icon">&#128172;</div>
+    <div class="pricing__addon reveal">
+      <div class="pricing__addon-ico">&#128172;</div>
       <div>
         <h3>Need help getting set up?</h3>
-        <p>Add a <strong>2-hour guided setup session</strong> for <strong>$197</strong>. We walk you through the entire configuration, import your data, and make sure everything is dialed in.</p>
-        <div class="pricing__addon-note">Available as an add-on with any tier.</div>
+        <p>Add a <strong>2-hour guided setup session</strong> for <strong>$197</strong>. We walk through configuration, data import, and dial everything in.</p>
       </div>
     </div>
 
@@ -1084,11 +1116,11 @@
 </section>
 
 <!-- ==================== FAQ ==================== -->
-<hr class="ledger-rule">
+<hr class="rule">
 <section id="faq" class="faq">
   <div class="container--tight">
-    <div class="section-header animate-on-scroll">
-      <span class="section-header__eyebrow">Questions</span>
+    <div class="sec-head reveal">
+      <span class="sec-head__ey">Questions</span>
       <h2>Frequently Asked</h2>
     </div>
 
@@ -1097,48 +1129,73 @@
       <div class="faq-a">PM Books runs on your own machine or server. Your financial data never touches a cloud service. You install it, you run it, you control it. Works on any system with Node.js 20+.</div>
     </div>
     <div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">How does the AI work without sending data to the cloud? <span class="faq-arrow">&#9660;</span></div>
-      <div class="faq-a">PM Books uses Venice AI, a zero-data-retention provider. Your prompts are processed and immediately discarded. Nothing is stored, nothing is used for training. You can also use local AI models if you prefer fully offline operation.</div>
+      <div class="faq-q">How does the AI work without cloud? <span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">PM Books uses Venice AI, a zero-data-retention provider. Your prompts are processed and immediately discarded. Nothing is stored, nothing is used for training. You can also use local AI models for fully offline operation.</div>
     </div>
     <div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">Do I need accounting knowledge to use this? <span class="faq-arrow">&#9660;</span></div>
-      <div class="faq-a">No. The setup wizard generates everything based on your business type. The AI assistant handles categorization and account mapping. You just describe expenses in plain English and PM Books does the rest.</div>
+      <div class="faq-q">Do I need accounting knowledge? <span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">No. The setup wizard generates everything based on your business type. The AI handles categorization and account mapping. Describe expenses in plain English and PM Books does the rest.</div>
     </div>
     <div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">Can I use this for my taxes? <span class="faq-arrow">&#9660;</span></div>
-      <div class="faq-a">Yes. The Pro tier includes Schedule C export and tax-ready reports. Every transaction maps to an IRS category. At tax time, export everything your accountant needs in one click. This is bookkeeping software, not tax filing software, but it gives your accountant exactly what they need.</div>
+      <div class="faq-q">Can I use this for taxes? <span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">Yes. Pro includes Schedule C export and tax-ready reports. Every transaction maps to an IRS category. Export what your accountant needs in one click. This is bookkeeping software, not tax filing, but it gives your accountant exactly what they need.</div>
     </div>
     <div class="faq-item" onclick="this.classList.toggle('open')">
       <div class="faq-q">Is there a monthly fee? <span class="faq-arrow">&#9660;</span></div>
-      <div class="faq-a">You choose: one-time payment or monthly subscription. Either way, you get the same software. The one-time price is a better deal if you plan to use it for more than a few months. No usage limits beyond your tier's AI and OCR quotas.</div>
+      <div class="faq-a">Your choice: one-time payment or monthly. Same software either way. The one-time price is better if you'll use it more than a few months.</div>
     </div>
     <div class="faq-item" onclick="this.classList.toggle('open')">
-      <div class="faq-q">What about the Telegram bot? <span class="faq-arrow">&#9660;</span></div>
-      <div class="faq-a">The Pro tier includes a Telegram bot that lets you log expenses, check balances, and ask questions from your phone. Send a message like "lunch $12 at Chipotle" and it creates a categorized transaction instantly. Receipts can be sent as photos directly in the chat.</div>
+      <div class="faq-q">How does the Telegram bot work? <span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">Pro includes a Telegram bot. Send "lunch $12 at Chipotle" and it creates a categorized transaction. Send receipt photos for OCR. Check balances, pull reports, all from your phone.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What if I need help migrating data? <span class="faq-arrow">&#9660;</span></div>
+      <div class="faq-a">PM Books supports CSV import at about 1,000 transactions per second. For complex migrations, add the guided setup session and we'll handle the import alongside your full configuration.</div>
     </div>
   </div>
 </section>
 
+<!-- ==================== CTA BAND ==================== -->
+<hr class="rule--gold">
+<section class="cta-band">
+  <div class="container">
+    <h2 class="reveal">Ready to own your <span class="accent-i">books?</span></h2>
+    <p class="reveal">One setup. One payment. Complete control.</p>
+    <a href="#pricing" class="btn btn--primary reveal">Get PM Books</a>
+  </div>
+</section>
+
 <!-- ==================== FOOTER ==================== -->
-<hr class="ledger-rule--double">
+<hr class="rule--double">
 <footer class="footer">
   <div class="container">
     <div class="footer__brand">PM <em>Books</em></div>
-    <p class="footer__company">A <strong>Permanently Mobile</strong> product</p>
+    <p class="footer__co">A <strong>Permanently Mobile</strong> product</p>
     <p>support@permanentlymobile.com</p>
   </div>
 </footer>
 
 <!-- ==================== SCRIPTS ==================== -->
 <script>
-// ---- Nav scroll state ----
+// Nav scroll
 const nav = document.getElementById('nav');
-let lastScroll = 0;
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 40);
 }, { passive: true });
 
-// ---- Intersection Observer for scroll animations ----
+// Mobile nav toggle
+document.getElementById('navToggle').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+
+// Close mobile nav on link click
+document.querySelectorAll('.nav__links a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('navLinks').classList.remove('open');
+  });
+});
+
+// Intersection Observer for reveals
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -1146,11 +1203,11 @@ const observer = new IntersectionObserver((entries) => {
       observer.unobserve(entry.target);
     }
   });
-}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
 
-document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// ---- Payment handler (preserved exactly) ----
+// Payment handler
 async function buyNow(tier, e) {
   const btn = e.target;
   const originalText = btn.textContent;
