@@ -1451,37 +1451,24 @@ window.addEventListener('scroll', () => {
   }
 });
 
-// Payment integration (unchanged)
+// Payment integration (via Cloudflare worker -- API key stays server-side)
 async function buyNow(tier, e) {
   const btn = e.target;
   const originalText = btn.textContent;
   btn.textContent = 'Loading...';
   btn.disabled = true;
 
-  const prices = { base: 97, pro: 297 };
-  const names = { base: 'PM Trade Module - Base License', pro: 'PM Trade Module - Pro License' };
-
   try {
-    const res = await fetch('https://api.nowpayments.io/v1/invoice', {
+    const res = await fetch('https://pm-payments.nashja2011.workers.dev', {
       method: 'POST',
-      headers: {
-        'x-api-key': 'REDACTED-OLD-NOWP-KEY-2026-04-03',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        price_amount: prices[tier],
-        price_currency: 'usd',
-        order_id: 'pm-trade-module-' + tier + '-' + Date.now(),
-        order_description: names[tier],
-        success_url: window.location.origin + '/pm-trade-module/success.html',
-        cancel_url: window.location.href
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product: 'pm-trade-module-' + tier })
     });
     const data = await res.json();
     if (data.invoice_url) {
       window.location.href = data.invoice_url;
     } else {
-      throw new Error('No invoice URL returned');
+      throw new Error('No invoice URL');
     }
   } catch (err) {
     btn.textContent = originalText;
